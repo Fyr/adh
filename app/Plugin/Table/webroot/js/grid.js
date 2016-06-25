@@ -10,7 +10,11 @@ $(function(){
 		}
 	});
 
-	$('.dataTable th.checkboxes input[type=checkbox]').change(function(){
+	$('.dataTable th.checkboxes input[type=checkbox]').change(function(e){
+		if (e.isPropagationStopped()) {
+			return;
+		}
+		console.log('orig', e.isPropagationStopped());
 		var checked = $(this).prop('checked');
 		var $table = $(this).closest('table.dataTable');
 		if ($(this).prop('checked')) {

@@ -5,7 +5,7 @@
 	if (isset($options['checkboxes'])) {
 ?>
 		<th class="checkboxes">
-			<input type="checkbox" />
+			<input type="checkbox" autocomplete="off"/>
 		</th>
 <?
 	}
@@ -45,7 +45,7 @@
 		if (isset($options['checkboxes'])) {
 ?>
 			<td class="checkboxes">
-				<input type="checkbox" name="data[checked][]" value="<?=$id?>" />
+				<input type="checkbox" name="data[checked][]" value="<?=$id?>" autocomplete="off"/>
 			</td>
 <?
 		}

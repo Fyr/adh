@@ -3,18 +3,33 @@ App::uses('AppController', 'Controller');
 App::uses('AdminController', 'Controller');
 class AdminCampaignsController extends AdminController {
     public $name = 'AdminCampaigns';
-    public $uses = array('Campaigns');
-
+    public $uses = array('Campaign');
+    public $helpers = array('Price');
+/*
     public $paginate = array(
         'conditions' => array('User.id <> ' => 1),
         'fields' => array('created', 'username', 'email', 'key', 'balance', 'active'),
         'order' => array('created' => 'desc'),
         'limit' => 20
     );
-
+*/
 
     public function index() {
-        // return $this->PCTableGrid->paginate('Campaign');
+        $aCampaigns = $this->Campaign->getList();
+        $this->set('rowset', $aCampaigns);
+
+        $this->set('stats', $this->Campaign->getStats(null, null, null, 7601546));
+    }
+
+    public function view($id) {
+        $aCampaigns = $this->Campaign->getList();
+        if (!isset($aCampaigns[$id])) {
+            $this->Flash->error(__('Incorrect campaign ID'));
+            return $this->redirect(array('action' => 'index'));
+        }
+
+        $campaign = $aCampaigns[$id];
+        $this->set(compact('campaign'));
     }
 
 }

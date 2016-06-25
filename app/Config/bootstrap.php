@@ -1,4 +1,6 @@
 <?php
+define('TEST_ENV', isset($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] == '192.168.1.22');
+
 Cache::config('default', array('engine' => 'File'));
 
 CakePlugin::loadAll();
@@ -20,7 +22,7 @@ CakeLog::config('error', array(
 	'types' => array('warning', 'error', 'critical', 'alert', 'emergency'),
 	'file' => 'error',
 ));
-Configure::write('Exception.renderer', 'AppExceptionRenderer');
+// Configure::write('Exception.renderer', 'AppExceptionRenderer');
 Configure::write('Config.language', 'eng');
 
 /* -= Custom settings =- */
@@ -28,8 +30,11 @@ Configure::write('domain', array(
 	'url' => $_SERVER['SERVER_NAME'],
 	'title' => 'AdHelper.dev'
 ));
-Configure::write('media', array(
-	'path' => $_SERVER['DOCUMENT_ROOT'].'/files/'
+
+Configure::write('plugrush', array(
+	'title' => 'PlugRush.com',
+	'api' => 'https://www.plugrush.com/api',
+	'log' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'plugrush_api.log',
 ));
 
 function fdebug($data, $logFile = 'tmp.log', $lAppend = true) {

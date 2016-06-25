@@ -1,0 +1,1 @@
+<h2 <?=(isset($class)) ? "class=\"{$class}\"" : ''?>><?=$title?></h2>

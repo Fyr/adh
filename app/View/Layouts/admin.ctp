@@ -15,7 +15,7 @@
 	<link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css" />
 	<link href="http://fonts.googleapis.com/css?family=PT+Sans&subset=latin,latin-ext" rel="stylesheet" type="text/css" />
 	<link href="http://<?=Configure::read('domain.url')?>/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-	<link href="http://<?=Configure::read('domain.url')?>/assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
+	<link href="http://<?=Configure::read('domain.url')?>/assets/global/plugins/simple-line-icons/css/simple-line-icons.css" rel="stylesheet" type="text/css" />
 	<link href="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 	<link href="http://<?=Configure::read('domain.url')?>/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css" />
 	<link href="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css" rel="stylesheet" type="text/css" />
@@ -155,6 +155,7 @@
 
 <script src="http://<?=Configure::read('domain.url')?>/js/vendor/jquery.cookie.js" type="text/javascript"></script>
 <script src="http://<?=Configure::read('domain.url')?>/js/lang.js" type="text/javascript"></script>
+
 <?
 	echo $this->Html->script(array('admin'));
 	echo $this->fetch('script');

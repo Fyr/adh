@@ -19,29 +19,16 @@
 ?>
 
 
-<form role="form" class="form-inline" action="">
+<!-- form role="form" class="form-inline" action=""-->
+<?
+	echo $this->PHForm->create('Settings', array('class' => 'form-inline'));
+?>
 	<h4>Plugrush.com</h4>
-	<div class="form-group">
-		<label for="exampleInputEmail22" class="sr-only">Email</label>
-		<div class="input-icon">
-			<i class="fa fa-envelope"></i>
-			<input type="email" placeholder="Email" class="form-control" name="data[Settings][plugrush_email]" value="<?=$this->request->data('Settings.plugrush_email')?>">
-		</div>
-	</div>
-	<div class="form-group">
-		<label for="exampleInputPassword42" class="sr-only">Password</label>
-		<div class="input-icon">
-			<i class="fa fa-user"></i>
-			<input type="password" placeholder="Password" class="form-control" name="data[Settings][plugrush_email]" value="<?=$this->request->data('Settings.plugrush_email')?>">
-		</div>
-	</div>
-	<div class="form-group">
-		<label for="exampleInputPassword42" class="sr-only">API Key</label>
-		<div class="input-icon">
-			<i class="fa fa-key"></i>
-			<input type="password" placeholder="API Key" id="exampleInputPassword43" class="form-control">
-		</div>
-	</div>
+<?
+	echo $this->PHForm->input('plugrush_email', array('icon' => 'fa fa-envelope', 'label' => array('text' => 'Email/Login', 'class' => 'sr-only')));
+	echo $this->PHForm->input('plugrush_psw', array('type' => 'password', 'icon' => 'fa fa-user', 'label' => array('text' => 'Password', 'class' => 'sr-only')));
+	echo $this->PHForm->input('plugrush_apikey', array('type' => 'password', 'icon' => 'fa fa-key', 'label' => array('text' => 'API Key', 'class' => 'sr-only')));
+?>
 <hr>
 <h4>Popads.net</h4>
 	<div class="form-group">
@@ -56,24 +43,10 @@
 			<i class="fa fa-user"></i>
 			<input type="password" placeholder="Password" id="exampleInputPassword42" class="form-control"> </div>
 	</div>
-	<hr>
-</form>
-
-			<?
-/*
-	echo $this->PHForm->input('song_price_'.$lang, array(
-		'class' => 'form-control input-small',
-		'label' => array('class' => 'col-md-3 control-label', 'text' => __('Song price'))
-	));
-	echo $this->PHForm->input('catalog_features_'.$lang, array(
-		'label' => array('class' => 'col-md-3 control-label', 'text' => __('Catalog features'))
-	));
-	echo $this->PHForm->input('catalog_video_'.$lang, array(
-		'label' => array('class' => 'col-md-3 control-label', 'text' => __('Video (HTML-code)'))
-	));
-*/
+	<br/><br/>
+<?
 	echo $this->element('AdminUI/form_save');
-	// echo $this->PHForm->end();
+	echo $this->PHForm->end();
 ?>
 		</div>
 	</div>

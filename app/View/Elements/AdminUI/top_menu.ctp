@@ -9,6 +9,9 @@
 			</a>
 			<div class="menu-toggler sidebar-toggler"> </div>
 		</div>
+		<div id="ajax-loader" style="margin-left: 10px; float: left; color: #fff; font-size: 16px; padding: 10px; display: none;">
+			<img src="/img/ajax-loader.gif" alt="" style="height: 24px; position: relative; top: -2px;" /> Loading...
+		</div>
 		<!-- END LOGO -->
 		<!-- BEGIN RESPONSIVE MENU TOGGLER -->
 		<a href="javascript:;" class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse"> </a>
@@ -31,7 +34,7 @@
 							</a>
 						</li>
 						<li>
-							<a href="#<?//$this->Html->url(array('controller' => 'AdminAuth', 'action' => 'logout'))?>">
+							<a href="<?=$this->Html->url(array('controller' => 'AdminCampaigns', 'action' => 'index'))?>">
 								<i class="icon-folder"></i> <?=__('Campaigns')?>
 							</a>
 						</li>
@@ -46,7 +49,12 @@
 					<ul class="dropdown-menu dropdown-menu-default">
 						<li>
 							<a href="<?=$this->Html->url(array('controller' => 'AdminUsers', 'action' => 'edit', 1))?>">
-								<i class="icon-user"></i> <?=__('My profile')?>
+								<i class="icon-user"></i> <?=__('Admin profile')?>
+							</a>
+						</li>
+						<li>
+							<a href="<?=$this->Html->url(array('controller' => 'AdminSettings', 'action' => 'accounts'))?>">
+								<i class="icon-people"></i> <?=__('Accounts')?>
 							</a>
 						</li>
 						<li>

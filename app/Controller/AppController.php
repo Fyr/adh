@@ -22,14 +22,13 @@ class AppController extends Controller {
 	}
 
 	protected function _beforeInit() {
-		$this->helpers = array_merge(array('Html', 'Form', 'Paginator', 'Settings'), $this->helpers); // 'ArticleVars', 'Media.PHMedia', 'Core.PHTime', 'Media', 'ObjectType'
+		$this->helpers = array_merge(array('Html', 'Form', 'Paginator'), $this->helpers); // 'ArticleVars', 'Media.PHMedia', 'Core.PHTime', 'Media', 'ObjectType'
 	}
 
 	protected function _afterInit() {
 		// after construct actions here
-		// $this->loadModel('Settings');
-		// $this->Settings->initData();
-
+		$this->loadModel('Settings');
+		$this->Settings->initData();
 	}
 
 	public function loadModel($modelClass = null, $id = null) {

@@ -7,16 +7,31 @@ App::uses('FormHelper', 'View/Helper');
 App::uses('FieldTypes', 'Form.Vendor');
 class PHFormHelper extends FormHelper {
 	// var $helpers = array('Form', 'Html');
+	protected $lInline = false;
+
 	public function create($model, $options = array()) {
 		$options['class'] = (isset($options['class']) && $options['class']) ? $options['class'] : 'form-horizontal';
-		$options['inputDefaults'] = (isset($options['inputDefaults']) && $options['inputDefaults']) ? $options['inputDefaults'] : array(
-			'div' => 'form-group',
-			'class' => 'form-control',
-			'label' => array('class' => 'col-md-3 control-label'),
-			'between' => '<div class="col-md-9">',
-			'after' => '</div>',
-			//'error' => array('attributes' => array('wrap' => 'div', 'class' => 'col-md-9'))
-		);
+
+		if (!isset($options['inputDefaults'])) {
+			if ($options['class'] == 'form-horizontal') {
+				$options['inputDefaults'] = (isset($options['inputDefaults']) && $options['inputDefaults']) ? $options['inputDefaults'] : array(
+					'div' => 'form-group',
+					'class' => 'form-control',
+					'label' => array('class' => 'col-md-3 control-label'),
+					'between' => '<div class="col-md-9">',
+					'after' => '</div>',
+					//'error' => array('attributes' => array('wrap' => 'div', 'class' => 'col-md-9'))
+				);
+			} elseif ($options['class'] == 'form-inline') {
+				$this->lInline = true;
+				$options['inputDefaults'] = (isset($options['inputDefaults']) && $options['inputDefaults']) ? $options['inputDefaults'] : array(
+					'div' => 'form-group',
+					'class' => 'form-control',
+					'label' => array('class' => 'sr-only'),
+					//'error' => array('attributes' => array('wrap' => 'div', 'class' => 'col-md-9'))
+				);
+			}
+		}
 		
 		// Fix validation errors translation
 		foreach($this->validationErrors as $_model => $fields) {
@@ -31,6 +46,10 @@ class PHFormHelper extends FormHelper {
 		return '<div class="portlet-body form tabbable-bordered">'.parent::create($model, $options);
 	}
 
+	public function isInline() {
+		return $this->lInline;
+	}
+
 	public function end($options = null, $secureAttributes = array()) {
 		return parent::end($options, $secureAttributes).'</div>';
 	}
@@ -42,6 +61,27 @@ class PHFormHelper extends FormHelper {
 			$options['format'] = array('before', 'label', 'between', 'input', 'after', 'error');
 		} elseif ($options['type'] == 'text' || $options['type'] == 'textarea') {
 			$options = array_merge(array('class' => 'input-xxlarge'), $options);
+		}
+		if ($this->isInline() && isset($options['icon'])) {
+			/*
+			$oldDefaults = $this->inputDefaults();
+			$this->inputDefaults(array(
+				'div' => 'form-group',
+				'class' => 'form-control',
+				'label' => array('class' => 'sr-only'),
+				'between' => '<div class="input-icon"><i class="'.$options['icon'].'"></i>',
+				'after' => '</div>'
+			));
+			*/
+			$label = $this->_getLabel($fieldName, $options);
+			preg_match('/\>(.+)\<\/label/', $label, $match);
+			fdebug($match);
+			$options['placeholder'] = $match[1];
+			$options['between'] = (isset($options['between'])) ? $options['between'] : '<div class="input-icon"><i class="'.$options['icon'].'"></i>';
+			$options['after'] = (isset($options['after'])) ? $options['after'] : '</div>';
+			unset($options['icon']);
+			$_ret = parent::input($fieldName, $options);
+			return $_ret;
 		}
 		return parent::input($fieldName, $options);
 	}

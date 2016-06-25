@@ -1,23 +1,9 @@
 <div class="page-sidebar-wrapper">
-	<!-- BEGIN SIDEBAR -->
-	<!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
-	<!-- DOC: Change data-auto-speed="200" to adjust the sub menu slide up/down speed -->
 	<div class="page-sidebar navbar-collapse collapse">
-		<!-- BEGIN SIDEBAR MENU -->
-		<!-- DOC: Apply "page-sidebar-menu-light" class right after "page-sidebar-menu" to enable light sidebar menu style(without borders) -->
-		<!-- DOC: Apply "page-sidebar-menu-hover-submenu" class right after "page-sidebar-menu" to enable hoverable(hover vs accordion) sub menu mode -->
-		<!-- DOC: Apply "page-sidebar-menu-closed" class right after "page-sidebar-menu" to collapse("page-sidebar-closed" class must be applied to the body element) the sidebar sub menu mode -->
-		<!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
-		<!-- DOC: Set data-keep-expand="true" to keep the submenues expanded -->
-		<!-- DOC: Set data-auto-speed="200" to adjust the sub menu slide up/down speed -->
 		<ul class="page-sidebar-menu  page-header-fixed " data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200" style="padding-top: 20px">
-			<!-- DOC: To remove the sidebar toggler from the sidebar you just need to completely remove the below "sidebar-toggler-wrapper" LI element -->
 			<li class="sidebar-toggler-wrapper hide">
-				<!-- BEGIN SIDEBAR TOGGLER BUTTON -->
 				<div class="sidebar-toggler"> </div>
-				<!-- END SIDEBAR TOGGLER BUTTON -->
 			</li>
-			<!-- DOC: To remove the search box from the sidebar you just need to completely remove the below "sidebar-search-wrapper" LI element -->
 			<li class="sidebar-search-wrapper">
 				<!-- BEGIN RESPONSIVE QUICK SEARCH FORM -->
 				<!-- DOC: Apply "sidebar-search-bordered" class the below search form to have bordered search box -->
@@ -37,15 +23,14 @@
 				</form-->
 				<!-- END RESPONSIVE QUICK SEARCH FORM -->
 			</li>
-			<li class="nav-item start ">
+			<!--li class="nav-item start ">
 				<a href="<?=$this->Html->url(array('controller' => 'Admin', 'action' => 'index'))?>" class="nav-link">
 					<i class="icon-home"></i>
 					<span class="title"><?=__('Dashboard')?></span>
 				</a>
-
-			</li>
+			</li-->
 			<li class="heading">
-				<h3 class="uppercase"><?=__('Admin area')?></h3>
+				<h3 class="uppercase"><?=__('Campaign Groups')?></h3>
 			</li>
 <?
 /*
@@ -85,13 +70,9 @@
 */
 
 	$aMenu = array(
-		array('label' => __('Campaigns'), 'icon' => 'icon-paper-plane', 'url' => '', 'submenu' => array(
-			array('label' => __('Create campaign'), 'url' => array('controller' => 'AdminPages', 'action' => 'index')),
+		array('label' => Configure::read('plugrush.title'), 'logo' => 'logo_plugrush.png', 'url' => '', 'submenu' => array(
+			array('label' => __('All campaigns'), 'url' => array('controller' => 'AdminCampaigns', 'action' => 'index')),
 			array('label' => __('List'), 'url' => array('controller' => 'AdminNews', 'action' => 'index')),
-		)),
-		array('label' => __('Settings'), 'icon' => 'icon-wrench', 'url' => '', 'submenu' => array(
-			array('label' => __('System'), 'url' => array('controller' => 'AdminSettings', 'action' => 'index')),
-			array('label' => __('Accounts'), 'url' => array('controller' => 'AdminSettings', 'action' => 'accounts')),
 		)),
 	);
 	$menuID = 0;
@@ -106,14 +87,15 @@
 		if (!isset($item['submenu'])) {
 ?>
 				<a href="<?=$this->Html->url($item['url'])?>" class="nav-link">
-					<?=$icon?>
+					<?//$icon?>
 					<?=$label?>
 				</a>
 <?
 		} else {
 ?>
 				<a href="javascript:;" class="nav-link nav-toggle">
-					<?=$icon?>
+					<?//$icon?>
+					<img src="/img/logo_plugrush.png" alt="plugrush.com" style="width: 20px; position: relative; top: -2px;" />
 					<?=$label?>
 					<span class="arrow"></span>
 				</a>
@@ -130,7 +112,21 @@
 ?>
 					<li class="nav-item open">
 						<a class="nav-link nav-toggle" href="javascript:;">
-							<span class="title">Campaign group 1</span>
+							<span class="title">PlugRush.com group 1</span>
+							<span class="arrow open"></span>
+						</a>
+						<ul class="sub-menu" style="display: block;">
+							<li class="nav-item">
+								<a class="nav-link " href="ui_page_progress_style_1.html">Campaign 1</a>
+							</li>
+							<li class="nav-item ">
+								<a class="nav-link " href="ui_page_progress_style_2.html">Campaign 2</a>
+							</li>
+						</ul>
+					</li>
+					<li class="nav-item open">
+						<a class="nav-link nav-toggle" href="javascript:;">
+							<span class="title">PlugRush.com group 2</span>
 							<span class="arrow open"></span>
 						</a>
 						<ul class="sub-menu" style="display: block;">
@@ -196,6 +192,8 @@
 		$currMenu.addClass('open');
 		$currMenu.parent().closest('li').addClass('active');
 		$currMenu.parent().closest('li').addClass('open');
+		$currMenu.parent().parent().find('> a > span.arrow').addClass('open');
+		// console.log($currMenu.parent().parent().find('> a > span.arrow').addClass('open').get(0));
 	});
 </script>
 <?
