@@ -47,7 +47,7 @@
 		),
 		'Campaign.settings' => array(
 			'key' => 'Campaign.settings',
-			'label' => 'Type',
+			'label' => 'Settings',
 			'format' => 'string'
 		),
 		'Campaign.funds' => array(

@@ -49,6 +49,8 @@
 
 	<!-- END PAGE LEVEL PLUGINS -->
 <?
+	echo $this->Html->css(array('extra'));
+
 	echo $this->Html->meta('icon');
 	echo $this->fetch('meta');
 	echo $this->fetch('css');

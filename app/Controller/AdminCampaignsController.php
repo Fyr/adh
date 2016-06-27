@@ -3,7 +3,7 @@ App::uses('AppController', 'Controller');
 App::uses('AdminController', 'Controller');
 class AdminCampaignsController extends AdminController {
     public $name = 'AdminCampaigns';
-    public $uses = array('Campaign');
+    public $uses = array('Campaign', 'VoluumApi');
     public $helpers = array('Price');
 /*
     public $paginate = array(
@@ -18,7 +18,7 @@ class AdminCampaignsController extends AdminController {
         $aCampaigns = $this->Campaign->getList();
         $this->set('rowset', $aCampaigns);
 
-        $this->set('stats', $this->Campaign->getStats(null, null, null, 7601546));
+        // $this->VoluumApi->getAuthToken();
     }
 
     public function view($id) {

@@ -37,6 +37,14 @@ Configure::write('plugrush', array(
 	'log' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'plugrush_api.log',
 ));
 
+Configure::write('voluum', array(
+	'title' => 'Voluum.com',
+	'token_api' => 'https://security.voluum.com/login',
+	'token_cache' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'voluum_token.cache',
+	'api' => 'https://reports.voluum.com/report',
+	'log' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'voluum_api.log',
+));
+
 function fdebug($data, $logFile = 'tmp.log', $lAppend = true) {
 	file_put_contents($logFile, mb_convert_encoding(print_r($data, true), 'cp1251', 'utf8'), ($lAppend) ? FILE_APPEND : null);
 }

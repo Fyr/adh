@@ -52,4 +52,15 @@ class AppModel extends Model {
     public function getLang() {
         return Configure::read('Config.language');
     }
+
+    protected function _writeLog($log, $actionType, $data = '') {
+        if ($log) {
+            if (is_array($data) || is_object($data)) {
+                $data = serialize($data);
+            }
+            $string = date('d-m-Y H:i:s') . ' ' . $actionType . ' ' . $data;
+            file_put_contents($log, $string . "\r\n", FILE_APPEND);
+        }
+    }
+
 }

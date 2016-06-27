@@ -37,6 +37,8 @@ function getChartsData(stats) {
             data.startDate = date;
         }
         data.endDate = date;
+
+        data.xAxis.push(date);
         data.amount.push(stats[date].amount);
         data.raws.push(stats[date].raws);
         data.uniques.push(stats[date].uniques);

@@ -26,7 +26,7 @@ class Campaign extends AppModel {
 		}
 		$aTotal = array();
 		foreach($campaignIds as $id) {
-			$aData = $this->loadModel('PlugrushApi')->getAdvertiserStats($startDate, $endDate, null, $campaignIds);
+			$aData = $this->loadModel('PlugrushApi')->getAdvertiserStats($startDate, $endDate, null, $id);
 			$aData = array_reverse($aData);
 			$aData = array_map(array($this, '_processStats'), $aData);
 
