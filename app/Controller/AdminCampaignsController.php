@@ -16,9 +16,7 @@ class AdminCampaignsController extends AdminController {
 
     public function index() {
         $aCampaigns = $this->Campaign->getList();
-        $this->set('rowset', $aCampaigns);
-
-        // $this->VoluumApi->getAuthToken();
+        $this->set('rowset', fdebug($aCampaigns));
     }
 
     public function view($id) {
