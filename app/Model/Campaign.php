@@ -13,15 +13,19 @@ class Campaign extends AppModel {
 		$aTrackerCampaigns = $this->VoluumApi->getTrackerCampaignList();
 		$aResult = array();
 		foreach($aTrackerCampaigns as $data) {
+			$src = strtolower($data['trafficSource']);
 			$trkData = array(
 				'created' => date('Y-m-d H:i:s', strtotime($data['created'])),
 				'campaign_id' => $data['campaignId'],
 				'campaign_name' => $data['campaignName'],
 				'country' => $data['campaignCountry'],
-				'source' => strtolower($data['trafficSource']), // PlugRush
+				'src_type' => $src, // PlugRush
+				'src_title' => Configure::read($src.'.title'),
+				'redirect_type' => ucfirst(strtolower($data['clickRedirectType'])),
+				'cost_model' => $data['costModel']
 			);
 
-			if (in_array($trkData['source'], array('plugrush'))) { // пока можем обработать только PlugRush
+			if (in_array($src, array('plugrush'))) { // пока можем обработать только PlugRush
 				$aSrcCampaignStats = $this->VoluumApi->getCampaignDetailedList($trkData['campaign_id']);
 				foreach ($aSrcCampaignStats as $row) {
 					// выбираем нужные данные из всей строки
@@ -47,11 +51,6 @@ class Campaign extends AppModel {
 				}
 			}
 		}
-		/*
-		foreach($aPlugRushData as $data) {
-			$aResult[$data['id']] = array('Campaign' => $data);
-		}
-		*/
 		return $aResult;
 	}
 

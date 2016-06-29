@@ -45,6 +45,7 @@ class VoluumApi extends AppModel {
 			throw new Exception('Voluum Auth API: Bad auth token response from server');
 		}
 
+		// Для auth-токена свой собственный кэш
 		$this->_writeTokenCache($response);
 		return Hash::get($response, 'token');
 	}
@@ -62,12 +63,20 @@ class VoluumApi extends AppModel {
 	}
 
 	public function sendRequest($data = array()) {
-		$url = Configure::read('voluum.api').'?'.((is_array($data)) ? http_build_query($data) : $data); // groupBy=campaign&from=2016-06-28&to=2016-06-28';
+		$url = Configure::read('voluum.api').'?'.((is_array($data)) ? http_build_query($data) : $data);
+		$cacheKey = 'voluum_'.md5($url);
 		$curl = new Curl($url);
 		$auth = array(
 			'cwauth-token: '.$this->_getAuthToken()
 		);
 		$this->_writeLog(Configure::read('voluum.log'), 'REQUEST', 'URL: '.$url.' DATA: '.serialize($data));
+
+		$response = Cache::read($cacheKey, 'api');
+		if ($response) {
+			$this->_writeLog(Configure::read('voluum.log'), 'CACHE', $response);
+			return $response;
+		}
+
 		$response = $curl->setOption(CURLOPT_HTTPHEADER, $auth)
 			->setOption(CURLOPT_SSL_VERIFYPEER, false)
 			->sendRequest();
@@ -90,6 +99,7 @@ class VoluumApi extends AppModel {
 			throw new Exception('Voluum API Error! '.Hash::get($response, 'error.code').': '.$errMsg);
 		}
 
+		Cache::write($cacheKey, $response, 'api');
 		return $response;
 	}
 

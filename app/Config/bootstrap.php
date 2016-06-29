@@ -6,6 +6,14 @@ Cache::config('default', array('engine' => 'File'));
 CakePlugin::loadAll();
 CakePlugin::load('DebugKit');
 
+Cache::config('api', array(
+	'engine' => 'File',
+	'prefix' => 'api_',
+	'path' => CACHE.'api'.DS,
+	'serialize' => true,
+	'duration' => '+1 day'
+));
+
 Configure::write('Dispatcher.filters', array(
 	'AssetDispatcher',
 	'CacheDispatcher'
@@ -40,7 +48,7 @@ Configure::write('plugrush', array(
 Configure::write('voluum', array(
 	'title' => 'Voluum.com',
 	'token_api' => 'https://security.voluum.com/login',
-	'token_cache' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'voluum_token.cache',
+	'token_cache' => CACHE.'api'.DS.'voluum_auth_token',
 	'api' => 'https://reports.voluum.com/report',
 	'log' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'voluum_api.log',
 ));
