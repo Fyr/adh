@@ -20,7 +20,7 @@
 		*/
 		'Campaign.created' => array(
 			'key' => 'Campaign.created',
-			'label' => 'ID',
+			'label' => 'Created',
 			'format' => 'string'
 		),
 		'Campaign.status' => array(
@@ -37,7 +37,7 @@
 		*/
 		'Campaign.title' => array(
 			'key' => 'Campaign.title',
-			'label' => 'Title',
+			'label' => 'Campaign',
 			'format' => 'text'
 		),
 		'Campaign.type' => array(
@@ -45,49 +45,109 @@
 			'label' => 'Type',
 			'format' => 'string'
 		),
-		'Campaign.settings' => array(
-			'key' => 'Campaign.settings',
-			'label' => 'Settings',
-			'format' => 'string'
-		),
 		'Campaign.funds' => array(
 			'key' => 'Campaign.funds',
-			'label' => 'Funds',
+			'label' => 'Traffic Funds',
 			'format' => 'string'
 		),
-		'Campaign.traffic' => array(
-			'key' => 'Campaign.traffic',
-			'label' => 'Traffic',
+		'TrackerStats.funds' => array(
+			'key' => 'TrackerStats.funds',
+			'label' => 'Tracker Funds',
+			'format' => 'string'
+		),
+		/*
+		'Campaign.cost_profit' => array(
+			'key' => 'Campaign.cost_profit',
+			'label' => 'Cost./Profit',
+			'format' => 'string'
+		),
+		*/
+		'TrackerStats.cpv' => array(
+			'key' => 'TrackerStats.cpv',
+			'label' => 'CPV',
+			'format' => 'string'
+		),
+		'TrackerStats.ctr' => array(
+			'key' => 'TrackerStats.ctr',
+			'label' => 'CTR',
+			'format' => 'string'
+		),
+		'TrackerStats.roi' => array(
+			'key' => 'TrackerStats.roi',
+			'label' => 'ROI',
 			'format' => 'string'
 		),
 	);
-	$row_actions = '../AdminCampaigns/_row_actions';
+	$row_actions = false;// '../AdminCampaigns/_row_actions';
 	$pagination = false;
 	$checkboxes = true;
 
 	foreach($rowset as &$row) {
-		// $row['Campaign']['checkbox'] = '<input type="checkbox">';
-		$row['Campaign']['created'] = '#'.$row['Campaign']['id'].'<br />'.$this->PHTime->niceShort($row['Campaign']['created']);
+		$row['Campaign']['created'] = implode('<br />', array(
+			date('d.m.Y', strtotime($row['Campaign']['created'])),
+			date('H:i', strtotime($row['Campaign']['created'])),
+			'',
+			date('d.m.Y', strtotime($row['Tracker']['created'])),
+			date('H:i', strtotime($row['Tracker']['created'])),
+		));
 
-		/*
-		$attrs = array(
-			'class' => 'popovers',
-			'data-original-title' => 'Campaign URL:', 'data-content' => $row['Campaign']['url'],
-			'data-placement' => 'bottom', 'data-trigger' => 'hover', 'data-container' => 'body')
-		;
-		*/
+		$row['Campaign']['status'] = implode('<br />', array(
+			$row['Campaign']['status'].' ('.round($row['Campaign']['traffic_received'] / $row['Campaign']['traffic_ordered'] * 100).'%)',
+			$row['Campaign']['traffic_received'].'/'.$row['Campaign']['traffic_ordered']
+		));
+
 		$attrs = array('title' => $row['Campaign']['url']);
-		$row['Campaign']['title'] = $row['Campaign']['title'].'<br />'.$this->Html->link(substr($row['Campaign']['url'], 0, 80).'...', $row['Campaign']['url'], $attrs);
-		$row['Campaign']['type'] = str_replace('_', '<br/>', $row['Campaign']['type']);
-		$row['Campaign']['settings'] = 'Autorenew: <b>'.$row['Campaign']['autorenew'].'</b><br/>Hour limit: <b>'.$row['Campaign']['max_hits_per_hour'].'</b>';
+		$icon = $this->Html->image('logo_'.$row['Tracker']['src_type'].'.png', array(
+			'class' => 'logo-service',
+			'alt' => $row['Tracker']['src_title']
+		));
+		$row['Campaign']['title'] = implode('<br />', array(
+			$icon.' '.$row['Tracker']['src_title'].' - '.'#'.$row['Campaign']['id'].' '.$row['Campaign']['title'],
+			$this->Html->link(substr($row['Campaign']['url'], 0, 80).'...', $row['Campaign']['url'], $attrs),
+			'',
+			'Tracker: #'.$row['Tracker']['campaign_id'],
+			$row['Tracker']['campaign_name'],
+		));
 
-		$row['Campaign']['funds'] = 'Paid: <b>'.$this->Price->format($row['Campaign']['paid']).'</b><br/>Bid: <b>'.$this->Price->format($row['Campaign']['bid']).'</b><br/>Spent: <b>'.$this->Price->format($row['Campaign']['spent']).'</b>';
-		$row['Campaign']['traffic'] = round($row['Campaign']['traffic_received'] / $row['Campaign']['traffic_ordered'] * 100).'%<br/>'.$row['Campaign']['traffic_received'].'/'.$row['Campaign']['traffic_ordered'].'';
+		$row['Campaign']['type'] = implode('<br />', am(explode('_', $row['Campaign']['type']), array(
+			'',
+			$row['Tracker']['redirect_type'],
+			$row['Tracker']['cost_model'],
+		)));
+
+		$row['Campaign']['funds'] = implode('<br/>', array(
+			'Paid: <b>'.$this->Price->format($row['Campaign']['paid']).'</b>',
+			'Bid: <b>'.$this->Price->format($row['Campaign']['bid']).'</b>',
+			'Spent: <b>'.$this->Price->format($row['Campaign']['spent']).'</b>'
+		));
+		/*
+		$row['Campaign']['conv_rev'] = implode(' / ', array(
+			$row['TrackerStats']['conversion'],
+			$this->Price->format($row['TrackerStats']['revenue'], 2)
+		));
+
+		$row['Campaign']['cost_profit'] = implode(' / ', array(
+			$this->Price->format($row['TrackerStats']['cost'], 2),
+			$this->Price->format($row['TrackerStats']['profit'], 2)
+		));
+		*/
+		$class = ($row['TrackerStats']['roi'] < 0) ? 'font-red-thunderbird' : 'font-green-jungle';
+		$row['TrackerStats']['funds'] = implode('<br/>', array(
+			'Conv.: <b>'.$row['TrackerStats']['conversion'].'</b>',
+			'Rev.: <b>'.$this->Price->format($row['TrackerStats']['revenue'], 2).'</b>',
+			'Cost: <b>'.$this->Price->format($row['TrackerStats']['cost'], 2).'</b>',
+			'Profit: '.$this->Html->tag('b', $this->Price->format($row['TrackerStats']['profit'], 2), compact('class'))
+		));
+
+		$row['TrackerStats']['cpv'] = $this->Price->format($row['TrackerStats']['cpv']);
+		$row['TrackerStats']['ctr'] = ($row['TrackerStats']['ctr']) ? '~'.round($row['TrackerStats']['ctr'], 2).'%' : '0%';
+
+		$row['TrackerStats']['roi'] = $this->Html->tag('span', $row['TrackerStats']['roi'].'%', compact('class'));
 	}
 ?>
 <style>
 	.checkboxes { text-align: center; }
-	.dataTable tbody td:nth-child(2), td:nth-child(6), td:nth-child(7) { white-space: nowrap; }
+	.dataTable tbody td:nth-child(2), td:nth-child(3), td:nth-child(5), td:nth-child(6), td:nth-child(7) { white-space: nowrap; }
 </style>
 <div class="row">
 	<div class="col-md-12">

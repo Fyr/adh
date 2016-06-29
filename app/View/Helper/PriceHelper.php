@@ -8,7 +8,8 @@ class PriceHelper extends AppHelper {
 		Configure::write('Settings.int_div', ',');
 		Configure::write('Settings.price_prefix', '$');
 		Configure::write('Settings.price_postfix', '');
-
+		$sign = ($sum < 0) ? '-' : '';
+		$sum = abs($sum);
 		if ($sum > 1 || $decimals) {
 			$decimals = ($decimals) ? $decimals : Configure::read('Settings.decimals');
 			$sum = number_format(
@@ -18,7 +19,7 @@ class PriceHelper extends AppHelper {
 				Configure::read('Settings.int_div')
 			);
 		}
-		$sum = Configure::read('Settings.price_prefix').$sum.Configure::read('Settings.price_postfix');
+		$sum = $sign.Configure::read('Settings.price_prefix').$sum.Configure::read('Settings.price_postfix');
 		return str_replace('$P', $this->symbolP(), $sum);
 	}
 
