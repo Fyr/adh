@@ -110,10 +110,10 @@ class VoluumApi extends AppModel {
 	}
 
 	public function getTrackerCampaignList() {
-		$from = $this->_parseDatetime(mktime(0, 0, 0, 1, 1, 2016));
-		$now = $this->_parseDatetime(time() + DAY);
+		$from = $this->_parseDatetime(Configure::read('date.from'));
+		$to = $this->_parseDatetime(Configure::read('date.to'));
 		// судя по моим тестам список кампаний не зависит от передаваемой даты
-		$data = "groupBy=campaign&from={$from}&to={$now}";
+		$data = "groupBy=campaign&from={$from}&to={$to}";
 		$aData = $this->sendRequest($data);
 		return $aData['rows'];
 	}
@@ -121,9 +121,9 @@ class VoluumApi extends AppModel {
 	public function getCampaignDetailedList($campaignId) {
 		// Какая-то начальная дата, чтобы выгрести все данные
 		// Чем более ранняя дата - тем дольше выполняется запрос
-		$from = $this->_parseDatetime(mktime(0, 0, 0, 1, 1, 2016));
-		$now = $this->_parseDatetime(time() + DAY); // т.к. часы скидываются, нужно брать на день вперед
-		$data = "groupBy=custom-variable-7&include=active&filter1=campaign&filter1Value={$campaignId}&from={$from}&to={$now}";
+		$from = $this->_parseDatetime(Configure::read('date.from'));
+		$to = $this->_parseDatetime(Configure::read('date.to')); // т.к. часы скидываются, нужно брать на день вперед
+		$data = "groupBy=custom-variable-7&include=active&filter1=campaign&filter1Value={$campaignId}&from={$from}&to={$to}";
 		$response = $this->sendRequest($data);
 		$aData = array();
 		foreach($response['rows'] as $row) {
@@ -131,6 +131,30 @@ class VoluumApi extends AppModel {
 			$srcCampaignId = intval($row['customVariable7']);
 			if ($srcCampaignId) {
 				$row['src_campaign_id'] = $srcCampaignId;
+				$aData[] = $row;
+			}
+		}
+		return $aData;
+	}
+
+	public function getDomainList($campaignId, $srcCampaignId = null) {
+		/*
+		 https://reports.voluum.com/report?from=2016-06-29T00:00:00Z&to=2016-06-30T00:00:00Z&tz=America%2FNew_York&sort=visits&direction=desc&columns=customVariable4&columns=visits&columns=clicks&columns=conversions&columns=revenue&columns=cost&columns=profit&columns=cpv&columns=ctr&columns=cr&columns=cv&columns=roi&columns=epv&columns=epc&columns=ap&columns=errors&groupBy=custom-variable-4&offset=0&limit=100&include=active&filter1=campaign&filter1Value=9b7c4cc9-2d9f-4d8f-a62d-2e82c2c76d16&filter2=custom-variable-7&filter2Value=7601546
+
+		 */
+		$from = $this->_parseDatetime(Configure::read('date.from'));
+		$now = $this->_parseDatetime(Configure::read('date.to')); // т.к. часы скидываются, нужно брать на день вперед
+		$data = "groupBy=custom-variable-4&include=active&filter1=campaign&filter1Value={$campaignId}&from={$from}&to={$now}";
+		if ($srcCampaignId) {
+			$data.= '&filter2=custom-variable-7&filter2Value='.$srcCampaignId;
+		}
+		$response = $this->sendRequest($data);
+
+		$aData = array();
+		foreach($response['rows'] as $row) {
+			$domain = trim($row['customVariable4']);
+			if ($domain) { // игнорим пустые домены
+				$row['domain'] = $domain;
 				$aData[] = $row;
 			}
 		}

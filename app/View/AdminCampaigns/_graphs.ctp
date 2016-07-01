@@ -7,21 +7,22 @@ function updateCharts() {
     });
     if (vals.length) {
         $('#ajax-loader').show();
-        $.get('<?=$this->Html->url(array('controller' => 'AdminAjax', 'action' => 'getStats', 'ext' => 'json'))?>', {campaign_id: vals.join(',')}, function (response) {
+        $.post('<?=$this->Html->url(array('controller' => 'AdminAjax', 'action' => 'getStats', 'ext' => 'json'))?>', {data: {ids: vals}}, function (response) {
             $('#ajax-loader').hide();
             if (checkJson(response)) {
                 $('#charts').html('<div style="border: 1px solid #e5e5e5; height: 400px;"></div>');
-                renderCharts(getChartsData(response.data));
-                renderReport(response);
+                renderCharts(getChartsData(response.data.traffic));
+                renderReports(response);
             }
         });
     } else {
-        $('#charts, #summary-report').html('<div style="margin: 30px 0; text-align: center;">- Please, select campaigns -</div>');
+        $('#charts, #summary-report, #domains-report').html('<div style="margin: 30px 0; text-align: center;">- Please, select campaigns -</div>');
     }
 }
 
-function renderReport(stats) {
-    $('#summary-report').html(Tmpl('summary-report').render(stats));
+function renderReports(response) {
+    $('#summary-report').html(Tmpl('summary-report').render(response));
+    $('#domains-report').html(Tmpl('domains-report').render(response));
 }
 
 function getChartsData(stats) {
@@ -47,7 +48,6 @@ function getChartsData(stats) {
 }
 
 function renderCharts(data) {
-    console.log('activateGraphs');
     var options = {
         chart: {
             zoomType: 'xy'
@@ -126,46 +126,4 @@ function renderCharts(data) {
     };
     $('#charts div').highcharts(options);
 }
-</script>
-<script type="text/x-tmpl" id="tmpl-summary-report">
-<table class="table table-striped table-bordered table-hover table-header-fixed dataTable">
-    <thead>
-    <tr>
-        <th>Date</th>
-        <th>Uniques</th>
-        <th>Rows</th>
-        <th>Cost, $</th>
-    </tr>
-    </thead>
-    <tbody>
-{%
-    var total = {uniques: 0, raws: 0, amount: 0};
-    for(var date in o.data) {
-        var row = o.data[date];
-        for(var i in total) {
-            total[i]+= row[i];
-        }
-%}
-        <tr>
-            <td>{%=date%}</td>
-            <td align="right">{%=row.uniques%}</td>
-            <td align="right">{%=row.raws%}</td>
-            <td align="right">${%=row.amount.toFixed(4)%}</td>
-        </tr>
-{%
-    }
-%}
-        <tr style="font-weight: bold;">
-            <td align="right">Total: </td>
-{%
-    total.amount = '$' + total.amount.toFixed(4);
-    for(var i in total) {
-%}
-            <td align="right">{%=total[i]%}</td>
-{%
-    }
-%}
-        </tr>
-    </tbody>
-</table>
 </script>

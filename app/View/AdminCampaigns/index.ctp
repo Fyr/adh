@@ -120,17 +120,7 @@
 			'Bid: <b>'.$this->Price->format($row['Campaign']['bid']).'</b>',
 			'Spent: <b>'.$this->Price->format($row['Campaign']['spent']).'</b>'
 		));
-		/*
-		$row['Campaign']['conv_rev'] = implode(' / ', array(
-			$row['TrackerStats']['conversion'],
-			$this->Price->format($row['TrackerStats']['revenue'], 2)
-		));
 
-		$row['Campaign']['cost_profit'] = implode(' / ', array(
-			$this->Price->format($row['TrackerStats']['cost'], 2),
-			$this->Price->format($row['TrackerStats']['profit'], 2)
-		));
-		*/
 		$class = ($row['TrackerStats']['roi'] < 0) ? 'font-red-thunderbird' : 'font-green-jungle';
 		$row['TrackerStats']['funds'] = implode('<br/>', array(
 			'Conv.: <b>'.$row['TrackerStats']['conversion'].'</b>',
@@ -143,6 +133,13 @@
 		$row['TrackerStats']['ctr'] = ($row['TrackerStats']['ctr']) ? '~'.round($row['TrackerStats']['ctr'], 2).'%' : '0%';
 
 		$row['TrackerStats']['roi'] = $this->Html->tag('span', $row['TrackerStats']['roi'].'%', compact('class'));
+
+		// передаем через ID чекбокса все необходимые данные (ID трэкера, тип источника, ID источника)
+		$row['Campaign']['id'] = implode(',', array(
+			$row['Tracker']['campaign_id'],
+			$row['Tracker']['src_type'],
+			$row['Campaign']['id']
+		));
 	}
 ?>
 <style>
@@ -154,27 +151,42 @@
 		<div class="portlet light bordered">
 			<?=$this->element('AdminUI/form_title', array('title' => $title))?>
 			<div class="portlet-body dataTables_wrapper">
-				<!--div class="table-toolbar">
+				<div class="table-toolbar">
 					<div class="row">
 						<div class="col-md-6">
-							<div class="btn-group">
+							<!--div class="btn-group">
 								<a class="btn green" href="<?//$this->Html->url(array('action' => 'edit', 0))?>">
 									<i class="fa fa-plus"></i> <?//$this->ObjectType->getTitle('create', $objectType)?>
 								</a>
-							</div>
+							</div-->
 						</div>
-						<div class="col-md-6">
+						<div class="col-md-6 text-right">
+							<div class="btn-group">
+<?
+/*
+	echo $this->PHForm->create('Filter', array('class' => 'form-inline'));
+	$options = array('Today', 'Yesterday', 'This week', 'Last 7 days', 'This month', 'Last 30 days');
+	$options = array_combine($options, $options);
+	if (!$this->request->data('Filter.datesType')) {
+		$this->request->data('Filter.datesType', 'Last 7 days');
+	}
+	echo $this->PHForm->input('datesType', array('options' => $options, 'class' => 'form-control', 'autocomplete' => 'off'));
+	echo $this->PHForm->end();
+*/
+?>
+							</div>
 
 						</div>
 					</div>
-				</div-->
+				</div>
 				<?=$this->PHTableGrid->render('Campaign', compact('columns', 'rowset', 'pagination', 'row_actions', 'checkboxes'))?>
 			</div>
 <?
 	echo $this->PHForm->create('Campaign');
 	$tabs = array(
 		'Graphs' => $this->element('../AdminCampaigns/_graphs'),
-		'Summary Report' => '<div id="summary-report"></div>'
+		'Summary Report' => $this->element('../AdminCampaigns/_report'),
+		'Site Targeting' => $this->element('../AdminCampaigns/_domains')
 	);
 	echo $this->element('AdminUI/tabs', compact('tabs'));
 	echo $this->PHForm->end();
@@ -213,4 +225,6 @@ $(function(){
 		}, 700);
 	});
 });
+
+<?=$this->Price->jsFunction()?>
 </script>

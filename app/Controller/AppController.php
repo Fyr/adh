@@ -29,6 +29,12 @@ class AppController extends Controller {
 		// after construct actions here
 		$this->loadModel('Settings');
 		$this->Settings->initData();
+
+		Configure::write('Settings.decimals', 2);
+		Configure::write('Settings.float_div', '.');
+		Configure::write('Settings.int_div', ',');
+		Configure::write('Settings.price_prefix', '$');
+		Configure::write('Settings.price_postfix', '');
 	}
 
 	public function loadModel($modelClass = null, $id = null) {

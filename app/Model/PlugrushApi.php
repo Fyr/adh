@@ -54,7 +54,21 @@ class PlugrushApi extends AppModel {
 		return $this->_sendRequest('campaign/list');
 	}
 
-	public function getAdvertiserStats($start = '', $end = '', $breakdown = 'dates', $campaign = null) {
+	private function _parseDatetime($time) {
+		return date('Y-m-d', $time);
+	}
+
+	public function getTrafficStats($campaign) {
+		$start = $this->_parseDatetime(Configure::read('date.from'));
+		$end = $this->_parseDatetime(Configure::read('date.to'));
+		$breakdown = 'dates';
+		return $this->_sendRequest('advertiser/stats', compact('start', 'end', 'breakdown', 'campaign'));
+	}
+
+	public function getDomainStats($campaign) {
+		$start = $this->_parseDatetime(Configure::read('date.from'));
+		$end = $this->_parseDatetime(Configure::read('date.to'));
+		$breakdown = 'referrals';
 		return $this->_sendRequest('advertiser/stats', compact('start', 'end', 'breakdown', 'campaign'));
 	}
 }

@@ -3,7 +3,7 @@ App::uses('AppController', 'Controller');
 App::uses('AdminController', 'Controller');
 class AdminCampaignsController extends AdminController {
     public $name = 'AdminCampaigns';
-    public $uses = array('Campaign', 'VoluumApi');
+    public $uses = array('Campaign', 'VoluumApi', 'PlugRushApi');
     public $helpers = array('Price');
 /*
     public $paginate = array(
@@ -16,7 +16,10 @@ class AdminCampaignsController extends AdminController {
 
     public function index() {
         $aCampaigns = $this->Campaign->getList();
-        $this->set('rowset', fdebug($aCampaigns));
+        $this->set('rowset', $aCampaigns);
+
+        // fdebug($this->loadModel('VoluumApi')->getDomainList('9b7c4cc9-2d9f-4d8f-a62d-2e82c2c76d16'));
+        // fdebug($this->loadModel('PlugrushApi')->getDomainStats(7601546), 'tmp1.log');
     }
 
     public function view($id) {

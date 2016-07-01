@@ -39,6 +39,11 @@ Configure::write('domain', array(
 	'title' => 'AdHelper.dev'
 ));
 
+Configure::write('date', array(
+	'from' => mktime(0, 0, 0, 6, 1, 2016),
+	'to' => time() + DAY
+));
+
 Configure::write('plugrush', array(
 	'title' => 'PlugRush.com',
 	'api' => 'https://www.plugrush.com/api',
