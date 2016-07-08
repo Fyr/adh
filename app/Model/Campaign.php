@@ -127,7 +127,13 @@ class Campaign extends AppModel {
 				$aDomains[$domain]['Tracker']['cpv'] += floatval($row['cpv']); // $0.0000
 			}
 		}
-		// TODO рассчитать CTR и ROI по готовым итогам
+
+		// скрректировать % по суммам
+		foreach($aDomains as $domain => $row) {
+			$row = $row['Tracker'];
+			$aDomains[$domain]['Tracker']['ctr'] = round(100 * $row['clicks'] / $row['visits'], 2); // %
+			$aDomains[$domain]['Tracker']['roi'] = round(100 * ($row['revenue'] - $row['cost']) / $row['cost'], 4); // %
+		}
 
 		foreach($aID as $_row) {
 			// Собираем статитику по всем источникам траффика в разрезе кампаний

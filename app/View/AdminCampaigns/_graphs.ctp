@@ -7,12 +7,17 @@ function updateCharts() {
     });
     if (vals.length) {
         $('#ajax-loader').show();
-        $.post('<?=$this->Html->url(array('controller' => 'AdminAjax', 'action' => 'getStats', 'ext' => 'json'))?>', {data: {ids: vals}}, function (response) {
+        var url = '<?=$this->Html->url(array('controller' => 'AdminAjax', 'action' => 'getStats', 'ext' => 'json'))?>';
+        $.post(url, {data: {ids: vals, from: $('#FilterFrom').val(), to: $('#FilterTo').val()}}, function (response) {
             $('#ajax-loader').hide();
             if (checkJson(response)) {
                 $('#charts').html('<div style="border: 1px solid #e5e5e5; height: 400px;"></div>');
                 renderCharts(getChartsData(response.data.traffic));
+                // $('#summary-report').html(Tmpl('summary-report').render(response));
+                // domainsGrid.setData(response);
+                // domainsGrid.render();
                 renderReports(response);
+
             }
         });
     } else {

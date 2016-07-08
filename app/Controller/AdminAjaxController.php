@@ -9,6 +9,7 @@ class AdminAjaxController extends PAjaxController {
 
 	public function getStats() {
 		try {
+			$this->Settings->adjustDateRange($this->request->data('from'), $this->request->data('to'));
 			$ids = $this->request->data('ids');
 			if (!($ids & is_array($ids))) {
 				throw new Exception('Incorrect request parameter `ids`');

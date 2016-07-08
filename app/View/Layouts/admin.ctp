@@ -149,8 +149,9 @@
 <script src="http://<?=Configure::read('domain.url')?>/assets/global/plugins/jquery-file-upload/js/jquery.iframe-transport.js" type="text/javascript"></script>
 <script src="http://<?=Configure::read('domain.url')?>/assets/global/plugins/jquery-file-upload/js/jquery.fileupload.js" type="text/javascript"></script>
 
-<!-- script src="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap-daterangepicker/moment.min.js" type="text/javascript"></script-->
+<script src="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap-daterangepicker/moment.min.js" type="text/javascript"></script>
 <!--script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script-->
+<script src="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap-daterangepicker/daterangepicker2.js" type="text/javascript"></script>
 <script src="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 <!--script src="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script-->
 <script src="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap-datepicker/locales/bootstrap-datepicker.ru.min.js" type="text/javascript"></script>

@@ -65,10 +65,12 @@ class VoluumApi extends AppModel {
 	public function sendRequest($data = array()) {
 		$url = Configure::read('voluum.api').'?'.((is_array($data)) ? http_build_query($data) : $data);
 		$cacheKey = 'voluum_'.md5($url);
+		/*
 		$curl = new Curl($url);
 		$auth = array(
 			'cwauth-token: '.$this->_getAuthToken()
 		);
+		*/
 		$this->_writeLog(Configure::read('voluum.log'), 'REQUEST', 'URL: '.$url.' DATA: '.serialize($data));
 
 		$response = Cache::read($cacheKey, 'api');

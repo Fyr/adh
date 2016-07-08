@@ -1,5 +1,14 @@
+<!--script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script-->
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 <?
-	$this->Html->script(array('/core/js/json_handler', 'vendor/highcharts', 'vendor/highcharts-grid-light-theme', 'vendor/tmpl.min', 'vendor/xtmpl'), array('inline' => false));
+	$this->Html->script(array(
+		'/core/js/json_handler',
+		'vendor/highcharts',
+		'vendor/highcharts-grid-light-theme',
+		'vendor/tmpl.min',
+		'vendor/xtmpl',
+		'vendor/xdate'
+	), array('inline' => false));
 
 	$title = __('Campaigns list');
 	$breadcrumbs = array(
@@ -141,15 +150,25 @@
 			$row['Campaign']['id']
 		));
 	}
+
+
 ?>
 <style>
 	.checkboxes { text-align: center; }
+	.daterangepicker_input .input-mini { width: 100% !important;}
+	.daterangepicker td.start-date {
+		border-radius: 4px 0 0 4px !important;
+	}
+	.daterangepicker td.end-date {
+		border-radius: 0 4px 4px 0 !important;
+	}
 	.dataTable tbody td:nth-child(2), td:nth-child(3), td:nth-child(5), td:nth-child(6), td:nth-child(7) { white-space: nowrap; }
 </style>
 <div class="row">
 	<div class="col-md-12">
 		<div class="portlet light bordered">
-			<?=$this->element('AdminUI/form_title', array('title' => $title))?>
+			<?=$this->element('AdminUI/form_title', compact('title', 'actions'))?>
+
 			<div class="portlet-body dataTables_wrapper">
 				<div class="table-toolbar">
 					<div class="row">
@@ -163,16 +182,20 @@
 						<div class="col-md-6 text-right">
 							<div class="btn-group">
 <?
+	echo $this->PHForm->create('Filter', array('class' => 'form-inline', 'id' => 'filterForm'));
+?>
+								<div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 250px">
+									<i class="fa fa-calendar"></i>&nbsp;
+									<span></span> <b class="caret"></b>
+								</div>
+<?
+	echo $this->PHForm->hidden('from');
+	echo $this->PHForm->hidden('to');
 /*
-	echo $this->PHForm->create('Filter', array('class' => 'form-inline'));
-	$options = array('Today', 'Yesterday', 'This week', 'Last 7 days', 'This month', 'Last 30 days');
-	$options = array_combine($options, $options);
-	if (!$this->request->data('Filter.datesType')) {
-		$this->request->data('Filter.datesType', 'Last 7 days');
-	}
-	echo $this->PHForm->input('datesType', array('options' => $options, 'class' => 'form-control', 'autocomplete' => 'off'));
-	echo $this->PHForm->end();
+	$datesOptions = array_combine($datesOptions, $datesOptions);
+	echo $this->PHForm->input('datesType', array('options' => $datesOptions, 'class' => 'form-control', 'autocomplete' => 'off', 'onchange' => "$('#filterForm').submit();"));
 */
+	echo $this->PHForm->end();
 ?>
 							</div>
 
@@ -197,6 +220,31 @@
 <script>
 var timer = null;
 $(function(){
+	var startDate = Date.fromSqlDate('<?=$this->request->data('Filter.from')?>');
+	var endDate = Date.fromSqlDate('<?=$this->request->data('Filter.to')?>');
+	function showDateRange(start, end) {
+		$('#FilterFrom').val(start.format('YYYY-MM-DD'));
+		$('#FilterTo').val(end.format('YYYY-MM-DD'));
+		$('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+	}
+	showDateRange(moment(startDate), moment(endDate));
+	$('#reportrange').daterangepicker({
+		startDate: startDate,
+		endDate: endDate,
+		maxDate: moment(),
+		ranges: {
+			'Today': [moment(), moment()],
+			'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+			'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+			'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+			'This Month': [moment().startOf('month'), moment().endOf('month')],
+			'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+		}
+	}, function(start, end, label){
+		showDateRange(start, end);
+		$('#filterForm').submit();
+	});
+
 	timer = null;
 	updateCharts();
 

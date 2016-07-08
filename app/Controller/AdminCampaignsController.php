@@ -3,7 +3,7 @@ App::uses('AppController', 'Controller');
 App::uses('AdminController', 'Controller');
 class AdminCampaignsController extends AdminController {
     public $name = 'AdminCampaigns';
-    public $uses = array('Campaign', 'VoluumApi', 'PlugRushApi');
+    public $uses = array('Campaign', 'VoluumApi', 'PlugRushApi', 'Settings');
     public $helpers = array('Price');
 /*
     public $paginate = array(
@@ -15,11 +15,18 @@ class AdminCampaignsController extends AdminController {
 */
 
     public function index() {
+        if (!$this->request->data('Filter.from')) {
+            $this->request->data('Filter.from', date('Y-m-d', time() - 6 * DAY));
+        }
+        if (!$this->request->data('Filter.to')) {
+            $this->request->data('Filter.to', date('Y-m-d'));
+        }
+        $this->Settings->adjustDateRange($this->request->data('Filter.from'), $this->request->data('Filter.to'));
         $aCampaigns = $this->Campaign->getList();
         $this->set('rowset', $aCampaigns);
 
-        // fdebug($this->loadModel('VoluumApi')->getDomainList('9b7c4cc9-2d9f-4d8f-a62d-2e82c2c76d16'));
-        // fdebug($this->loadModel('PlugrushApi')->getDomainStats(7601546), 'tmp1.log');
+        $options = array('Today', 'Yesterday', 'Last 7 days', 'Last 14 days', 'Last 30 days');
+        $this->set('datesOptions', $options);
     }
 
     public function view($id) {
