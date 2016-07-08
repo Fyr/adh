@@ -53,7 +53,7 @@ class VoluumApi extends AppModel {
 	private function _writeTokenCache($response) {
 		$cacheFile = Configure::read('voluum.token_cache');
 		list($expired) = explode('.', $response['expirationTimestamp']); // выдает в некорректном формате ISO 8601 напр. 2016-06-29T01:07:22.531Z
-		$response['expirationTimestamp'] = str_replace('T', ' ', $expired);
+		$response['expirationTimestamp'] = date('Y-m-d H:i:s', time() + 30 * MINUTE); // str_replace('T', ' ', $expired); почему-то авторизация летает раньше при указанной даты
 		file_put_contents($cacheFile, serialize($response), false);
 	}
 
