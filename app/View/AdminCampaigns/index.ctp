@@ -7,8 +7,12 @@
 		'vendor/highcharts-grid-light-theme',
 		'vendor/tmpl.min',
 		'vendor/xtmpl',
-		'vendor/xdate'
+		'vendor/xdate',
+		'/Core/js/json_x',
+		'/Table/js/format',
+		'/Table/js/table_grid',
 	), array('inline' => false));
+	// echo $this->element('Table.js_table_grid'); // нужен для table_grid
 
 	$title = __('Campaigns list');
 	$breadcrumbs = array(
@@ -163,6 +167,7 @@
 		border-radius: 0 4px 4px 0 !important;
 	}
 	.dataTable tbody td:nth-child(2), td:nth-child(3), td:nth-child(5), td:nth-child(6), td:nth-child(7) { white-space: nowrap; }
+	.table > thead > tr > th.grid-x-header {border-bottom: 1px solid #e7ecf1; text-align: center;}
 </style>
 <div class="row">
 	<div class="col-md-12">

@@ -1,8 +1,10 @@
 Format = {
 	tag: function(tagName, attrs, innerHtml) {
 		var html = '<' + tagName;
-		for(var i in attrs) {
-			html+= ' ' + i + '="' + attrs[i] + '"';
+		if (attrs) {
+			for (var i in attrs) {
+				html += ' ' + i + '="' + attrs[i] + '"';
+			}
 		}
 		if (innerHtml) {
 			html+= '>' + innerHtml + '</' + tagName + '>';

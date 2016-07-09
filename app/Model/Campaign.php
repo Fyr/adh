@@ -165,6 +165,11 @@ class Campaign extends AppModel {
 
 		// Для некоторых доменов нету данных по трэкеру
 		// Возможно, что для некоторых доменов не будет даннных по каким-то источникам траффика
-		return $aDomains;
+
+		// Преобразовываем к в обычный массив для domainsGrid - это нужно для облегчения сортировки
+		foreach($aDomains as $domain => &$data) {
+			$data['domain'] = $domain;
+		}
+		return array_values($aDomains);
 	}
 }
