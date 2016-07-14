@@ -34,8 +34,13 @@
 							</a>
 						</li>
 						<li>
+							<a href="<?=$this->Html->url(array('controller' => 'AdminCampaignGroups', 'action' => 'index'))?>">
+								<i class="fa fa-list-alt"></i> <?=__('Groups')?>
+							</a>
+						</li>
+						<li>
 							<a href="<?=$this->Html->url(array('controller' => 'AdminCampaigns', 'action' => 'index'))?>">
-								<i class="icon-folder"></i> <?=__('Campaigns')?>
+								<i class="fa fa-list"></i> <?=__('Campaigns')?>
 							</a>
 						</li>
 					</ul>

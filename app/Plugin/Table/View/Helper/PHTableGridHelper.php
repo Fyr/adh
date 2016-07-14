@@ -29,7 +29,9 @@ class PHTableGridHelper extends AppHelper {
 			'columns' => $this->getDefaultColumns($modelName),
 			'rowset' => $this->getDefaultRowset($modelName),
 			'row_actions' => 'Table.row_actions',
-			'pagination' => true
+			'pagination' => true,
+			'checkboxes' => false,
+			'checked' => array(),
 		), $options);
 
 		if ($options['rowset']) {

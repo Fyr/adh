@@ -1,16 +1,44 @@
 <?
 App::uses('AppModel', 'Model');
 App::uses('PlugrushApi', 'Model');
+App::uses('PopadsApi', 'Model');
 App::uses('VoluumApi', 'Model');
 class Campaign extends AppModel {
 	public $useTable = false;
+
+	public function getSourceList() {
+		$aSrc = array('plugrush' => 'PlugrushApi', 'popads' => 'PopadsApi');
+		$aResult = array();
+		foreach($aSrc as $src_type => $srcApi) {
+			$aData = $this->loadModel($srcApi)->getCampaignList();
+			foreach($aData as $row) {
+				$id = $row['id'];
+				$src_title = Configure::read($src_type.'.title');
+				if ($src_type == 'popads') {
+					$url = $row['url'][0];
+					$title = $row['name'];
+				} else {
+					$url = $row['url'];
+					$title = $row['title'];
+				}
+
+				$aResult[] = compact('id', 'src_type', 'src_title', 'title', 'url');
+			}
+		}
+		return $aResult;
+	}
 
 	public function getList() {
 		$aData = $this->loadModel('PlugrushApi')->getCampaignList();
 		$aPlugRushData = Hash::combine($aData, '{n}.id', '{n}');
 
+		$aData = $this->loadModel('PopadsApi')->getCampaignList();
+		$aPopadsData = Hash::combine($aData, '{n}.id', '{n}');
+		fdebug($aPopadsData);
 		$this->VoluumApi = $this->loadModel('VoluumApi');
 		$aTrackerCampaigns = $this->VoluumApi->getTrackerCampaignList();
+
+		fdebug($aTrackerCampaigns, 'tmp1.log');
 		$aResult = array();
 		foreach($aTrackerCampaigns as $data) {
 			$src = strtolower($data['trafficSource']);
@@ -25,13 +53,15 @@ class Campaign extends AppModel {
 				'cost_model' => $data['costModel']
 			);
 
-			if (in_array($src, array('plugrush'))) { // пока можем обработать только PlugRush
+			if (in_array($src, array('plugrush', 'popads'))) { // пока можем обработать только PlugRush, PopAds
 				$aSrcCampaignStats = $this->VoluumApi->getCampaignDetailedList($trkData['campaign_id']);
+				fdebug($trkData['campaign_id'], 'tmp2.log');
+				fdebug($aSrcCampaignStats, 'tmp2.log');
 				foreach ($aSrcCampaignStats as $row) {
-					$srcCampaignId = $row['src_campaign_id'];
+					$srcCampaignId = intval($row['src_campaign_id']);
 					// выбираем нужные данные из всей строки
 					$data = array(
-						'src_campaign_id' => $row['src_campaign_id'],
+						'src_campaign_id' => $srcCampaignId,
 						'visits' => intval($row['visits']),
 						'clicks' => intval($row['clicks']),
 						'conversion' => intval($row['conversions']),
@@ -42,14 +72,27 @@ class Campaign extends AppModel {
 						'ctr' => floatval($row['ctr']), // 0.00%
 						'roi' => floatval($row['roi']), // +-100.00%
 					);
-					// Добавляем инфу об кампании-источнике
-					if (isset($aPlugRushData[$srcCampaignId])) { // на всякий случай еще раз проверяем
-						$aResult[] = array(
-							'Tracker' => $trkData,
-							'Campaign' => $aPlugRushData[$srcCampaignId], // в зав-ти от trk source выбрать данные из нужного источника траффика
-							'TrackerStats' => $data
-						);
+
+					/* Campaign fields:
+						id, created, status, url, paid, bid, spent, traffic
+					*/
+					$cmpData = array();
+					if (isset($aPlugRushData[$srcCampaignId])) {
+						$cmpData = $aPlugRushData[$srcCampaignId];
+						$cmpData['traffic_percent'] = round($cmpData['traffic_received'] / $cmpData['traffic_ordered'] * 100);
+						$cmpData['traffic_info'] = $cmpData['traffic_received'].'/'.$cmpData['traffic_ordered'];
+						$cmpData['type'] = str_replace('_', '/', $cmpData['type']);
+					} elseif (isset($aPopadsData[$srcCampaignId])) {
+						$cmpData = $aPopadsData[$srcCampaignId];
+						$cmpData['spent'] = round(floatval($cmpData['budget']), 2);
 					}
+
+					// Добавляем инфу об кампании-источнике
+					$aResult[] = array(
+						'Tracker' => $trkData,
+						'Campaign' => $cmpData, // в зав-ти от trk source выбрать данные из нужного источника траффика
+						'TrackerStats' => $data
+					);
 				}
 			}
 		}
@@ -173,3 +216,4 @@ class Campaign extends AppModel {
 		return array_values($aDomains);
 	}
 }
+

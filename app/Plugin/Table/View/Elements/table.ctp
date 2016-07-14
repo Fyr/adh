@@ -38,14 +38,15 @@
 	<tbody>
 <?
 	foreach($options['rowset'] as $row) {
-		$id = Hash::get($row, $options['model'].'.id');
+		$id = Hash::get($row, $options['model'] ? $options['model'].'.id' : 'id');
 ?>
 		<tr>
 <?
 		if (isset($options['checkboxes'])) {
+			$checked = (isset($options['checked']) && in_array($id, $options['checked'])) ? 'checked="checked"' : '';
 ?>
 			<td class="checkboxes">
-				<input type="checkbox" name="data[checked][]" value="<?=$id?>" autocomplete="off"/>
+				<input type="checkbox" name="data[checked][]" value="<?=$id?>" autocomplete="off" <?=$checked?>/>
 			</td>
 <?
 		}
