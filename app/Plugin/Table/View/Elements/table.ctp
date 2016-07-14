@@ -2,7 +2,7 @@
 	<thead>
 	<tr>
 <?
-	if (isset($options['checkboxes'])) {
+	if ($options['checkboxes']) {
 ?>
 		<th class="checkboxes">
 			<input type="checkbox" autocomplete="off"/>
@@ -42,8 +42,8 @@
 ?>
 		<tr>
 <?
-		if (isset($options['checkboxes'])) {
-			$checked = (isset($options['checked']) && in_array($id, $options['checked'])) ? 'checked="checked"' : '';
+		if ($options['checkboxes']) {
+			$checked = (in_array($id, $options['checked'])) ? 'checked="checked"' : '';
 ?>
 			<td class="checkboxes">
 				<input type="checkbox" name="data[checked][]" value="<?=$id?>" autocomplete="off" <?=$checked?>/>

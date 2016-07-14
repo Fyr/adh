@@ -34,11 +34,11 @@ class Campaign extends AppModel {
 
 		$aData = $this->loadModel('PopadsApi')->getCampaignList();
 		$aPopadsData = Hash::combine($aData, '{n}.id', '{n}');
-		fdebug($aPopadsData);
+		// fdebug($aPopadsData);
 		$this->VoluumApi = $this->loadModel('VoluumApi');
 		$aTrackerCampaigns = $this->VoluumApi->getTrackerCampaignList();
 
-		fdebug($aTrackerCampaigns, 'tmp1.log');
+		// fdebug($aTrackerCampaigns, 'tmp1.log');
 		$aResult = array();
 		foreach($aTrackerCampaigns as $data) {
 			$src = strtolower($data['trafficSource']);
@@ -55,8 +55,8 @@ class Campaign extends AppModel {
 
 			if (in_array($src, array('plugrush', 'popads'))) { // пока можем обработать только PlugRush, PopAds
 				$aSrcCampaignStats = $this->VoluumApi->getCampaignDetailedList($trkData['campaign_id']);
-				fdebug($trkData['campaign_id'], 'tmp2.log');
-				fdebug($aSrcCampaignStats, 'tmp2.log');
+				// fdebug($trkData['campaign_id'], 'tmp2.log');
+				// fdebug($aSrcCampaignStats, 'tmp2.log');
 				foreach ($aSrcCampaignStats as $row) {
 					$srcCampaignId = intval($row['src_campaign_id']);
 					// выбираем нужные данные из всей строки

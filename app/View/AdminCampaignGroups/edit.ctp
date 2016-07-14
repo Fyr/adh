@@ -42,9 +42,9 @@
             'columns' => $columns,
             'pagination' => false,
             'checkboxes' => true,
-            'checked' => explode(',', $this->request->data('CampaignGroup.ids')),
+            'checked' => explode(',', $this->request->data('CampaignGroup.campaign_ids')),
             'row_actions' => false
-        )).$this->PHForm->hidden('ids')
+        )).$this->PHForm->hidden('campaign_ids')
     );
 
     echo $this->element('AdminUI/tabs', compact('tabs'));
@@ -67,7 +67,7 @@ $(function(){
         $('tbody [type="checkbox"]:checked').each(function(){
             ids.push($(this).val());
         });
-        $('#CampaignGroupIds').val(ids.join(','));
+        $('#CampaignGroupCampaignIds').val(ids.join(','));
     });
 });
 </script>

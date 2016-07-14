@@ -33,6 +33,18 @@
 				<h3 class="uppercase"><?=__('Campaign Groups')?></h3>
 			</li>
 <?
+	$currMenu = 0;
+	foreach($aSrcGroups as $group) {
+		$campaings = explode(',', $group['CampaignGroup']['campaign_ids']);
+?>
+			<li class="nav-item">
+				<a href="#<?=$this->Html->url(array('controller' => 'AdminCampaigns', 'action' => 'index', $group['CampaignGroup']['campaign_ids']))?>" class="nav-link">
+					<?=$group['CampaignGroup']['title']?>
+					<span class="badge badge-success"><?=count($campaings)?></span>
+				</a>
+			</li>
+<?
+	}
 /*
 	$aMenu = array(
 		array('label' => __('Static content'), 'icon' => 'icon-layers', 'url' => '', 'submenu' => array(
@@ -68,7 +80,7 @@
 		)),
 	);
 */
-
+/*
 	$aMenu = array(
 		array('label' => Configure::read('plugrush.title'), 'logo' => 'logo_plugrush.png', 'url' => '', 'submenu' => array(
 			array('label' => __('All campaigns'), 'url' => array('controller' => 'AdminCampaigns', 'action' => 'index')),
@@ -159,6 +171,7 @@
 			</li>
 <?
 	}
+*/
 ?>
 		</ul>
 		<!-- END SIDEBAR MENU -->

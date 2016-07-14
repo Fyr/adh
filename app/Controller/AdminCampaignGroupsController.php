@@ -7,13 +7,16 @@ class AdminCampaignGroupsController extends AdminController {
     public $uses = array('CampaignGroup', 'Campaign');
 
     public $paginate = array(
-        'fields' => array('title', 'sorting'),
+        'fields' => array('title', 'sorting', 'campaign_ids'),
         'order' => array('created' => 'desc'),
         'limit' => 20
     );
 
     public function index() {
         $this->PCTableGrid->paginate('CampaignGroup');
+        $aCampaigns = $this->Campaign->getSourceList();
+        $aCampaigns = Hash::combine($aCampaigns, '{n}.id', '{n}');
+        $this->set(compact('aCampaigns'));
     }
 
     public function edit($id = 0) {
@@ -40,6 +43,5 @@ class AdminCampaignGroupsController extends AdminController {
 
         $aCampaigns = $this->Campaign->getSourceList();
         $this->set(compact('aCampaigns'));
-        fdebug($aCampaigns);
     }
 }

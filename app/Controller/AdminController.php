@@ -23,6 +23,9 @@ class AdminController extends AppController {
 	public function beforeRenderLayout() {
 		$this->set('isAdmin', $this->isAdmin());
 		$this->set('lang', 'eng');
+
+		$aSrcGroups = $this->loadModel('CampaignGroup')->find('all');
+		$this->set(compact('aSrcGroups'));
 	}
 	
 	public function isAdmin() {
