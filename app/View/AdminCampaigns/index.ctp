@@ -1,5 +1,8 @@
-<!--script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script-->
-<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+<link href="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap-daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
+<link href="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap-daterangepicker/daterangepicker-orig.css" rel="stylesheet" type="text/css" />
+<script src="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap-daterangepicker/moment.min.js" type="text/javascript"></script>
+<script src="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap-daterangepicker/daterangepicker2.js" type="text/javascript"></script>
+
 <?
 	$this->Html->script(array(
 		'/core/js/json_handler',
@@ -104,9 +107,11 @@
 			date('H:i', strtotime($row['Tracker']['created'])),
 		));
 
+		$traffic_percent = (isset($row['Campaign']['traffic_percent'])) ? ' ('.$row['Campaign']['traffic_percent'].'%)' : '';
+		$traffic_info = (isset($row['Campaign']['traffic_info'])) ? $row['Campaign']['traffic_info'] : '';
 		$row['Campaign']['status'] = implode('<br />', array(
-			$row['Campaign']['status'].' ('.round($row['Campaign']['traffic_received'] / $row['Campaign']['traffic_ordered'] * 100).'%)',
-			$row['Campaign']['traffic_received'].'/'.$row['Campaign']['traffic_ordered']
+			$row['Campaign']['status'].$traffic_percent,
+			$traffic_info
 		));
 
 		$attrs = array('title' => $row['Campaign']['url']);
@@ -122,17 +127,26 @@
 			$row['Tracker']['campaign_name'],
 		));
 
-		$row['Campaign']['type'] = implode('<br />', am(explode('_', $row['Campaign']['type']), array(
+		$type = (isset($row['Campaign']['type'])) ? $row['Campaign']['type'] : '';
+		$row['Campaign']['type'] = implode('<br />', array(
+			$type,
+			'',
 			'',
 			$row['Tracker']['redirect_type'],
 			$row['Tracker']['cost_model'],
-		)));
-
-		$row['Campaign']['funds'] = implode('<br/>', array(
-			'Paid: <b>'.$this->Price->format($row['Campaign']['paid']).'</b>',
-			'Bid: <b>'.$this->Price->format($row['Campaign']['bid']).'</b>',
-			'Spent: <b>'.$this->Price->format($row['Campaign']['spent']).'</b>'
 		));
+
+		$items = array();
+		if (isset($row['Campaign']['paid'])) {
+			$items[] = 'Paid: <b>'.$this->Price->format($row['Campaign']['paid']).'</b>';
+		}
+		if (isset($row['Campaign']['bid'])) {
+			$items[] = 'Bid: <b>'.$this->Price->format($row['Campaign']['bid']).'</b>';
+		}
+		if (isset($row['Campaign']['spent'])) {
+			$items[] = 'Spent: <b>'.$this->Price->format($row['Campaign']['spent']).'</b>';
+		}
+		$row['Campaign']['funds'] = implode('<br/>', $items);
 
 		$class = ($row['TrackerStats']['roi'] < 0) ? 'font-red-thunderbird' : 'font-green-jungle';
 		$row['TrackerStats']['funds'] = implode('<br/>', array(
@@ -158,7 +172,6 @@
 
 ?>
 <style>
-	.checkboxes { text-align: center; }
 	.daterangepicker_input .input-mini { width: 100% !important;}
 	.daterangepicker td.start-date {
 		border-radius: 4px 0 0 4px !important;
@@ -240,8 +253,8 @@ $(function(){
 		ranges: {
 			'Today': [moment(), moment()],
 			'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-			'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-			'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+			'Last 7 Days': [moment().subtract(7, 'days'), moment()],
+			'Last 30 Days': [moment().subtract(30, 'days'), moment()],
 			'This Month': [moment().startOf('month'), moment().endOf('month')],
 			'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
 		}

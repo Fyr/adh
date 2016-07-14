@@ -1,8 +1,4 @@
-<div id="domains">
-    <button type="button" class="btn" onclick="domainsGrid.sortBy('domain', false);">Sort by domains</button>
-    <button type="button" class="btn" onclick="domainsGrid.sortBy('Tracker.visits', true);">Sort by visits</button>
-    <div id="domains-report"></div>
-</div>
+<div id="domains-report"></div>
 <script type="text/javascript">
 var domainsGrid;
 $(function(){

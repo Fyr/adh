@@ -43,8 +43,23 @@ class AdminController extends AppController {
 		return $curr_menu;
 	}
 
+	protected function getModel() {
+		list($plugin, $model) = pluginSplit($this->uses[0]);
+		return $model;
+	}
+
 	public function delete($id) {
 		$this->autoRender = false;
+		$model = $this->getModel();
+		if ($model) {
+			$this->loadModel($model);
+			if (strpos($model, '.') !== false) {
+				list($plugin, $model) = explode('.',$model);
+			}
+			$this->{$model}->delete($id);
+		}
+		$this->redirect(array('action' => 'index'));
+		/*
 		$model = $this->request->query('model');
 		if ($model) {
 			$this->loadModel($model);
@@ -58,6 +73,7 @@ class AdminController extends AppController {
 			return;
 		}
 		$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
+		*/
 	}
 
 }

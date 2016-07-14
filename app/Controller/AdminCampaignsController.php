@@ -16,7 +16,7 @@ class AdminCampaignsController extends AdminController {
 
     public function index() {
         if (!$this->request->data('Filter.from')) {
-            $this->request->data('Filter.from', date('Y-m-d', time() - 6 * DAY));
+            $this->request->data('Filter.from', date('Y-m-d', time() - 7 * DAY));
         }
         if (!$this->request->data('Filter.to')) {
             $this->request->data('Filter.to', date('Y-m-d'));
