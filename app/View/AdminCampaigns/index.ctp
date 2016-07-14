@@ -23,17 +23,9 @@
 		$title => ''
 	);
 	echo $this->element('AdminUI/breadcrumbs', compact('breadcrumbs'));
-	// echo $this->element('AdminUI/title', compact('title'));
 	echo $this->Flash->render();
 
 	$columns = array(
-		/*
-		'Campaign.check_all' => array(
-			'key' => 'Campaign.checkbox',
-			'label' => '<input type="checkbox">',
-			'format' => 'string'
-		),
-		*/
 		'Campaign.created' => array(
 			'key' => 'Campaign.created',
 			'label' => 'Created',
@@ -44,13 +36,6 @@
 			'label' => 'Status',
 			'format' => 'string'
 		),
-		/*
-		'Campaign.created' => array(
-			'key' => 'Campaign.created',
-			'label' => 'Created',
-			'format' => 'datetime'
-		),
-		*/
 		'Campaign.title' => array(
 			'key' => 'Campaign.title',
 			'label' => 'Campaign',
@@ -71,13 +56,6 @@
 			'label' => 'Tracker Funds',
 			'format' => 'string'
 		),
-		/*
-		'Campaign.cost_profit' => array(
-			'key' => 'Campaign.cost_profit',
-			'label' => 'Cost./Profit',
-			'format' => 'string'
-		),
-		*/
 		'TrackerStats.cpv' => array(
 			'key' => 'TrackerStats.cpv',
 			'label' => 'CPV',

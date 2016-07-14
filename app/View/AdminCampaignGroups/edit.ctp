@@ -56,12 +56,6 @@
 </div>
 <script type="text/javascript">
 $(function(){
-    /*
-    var ids = [<?=$this->request->data('CampaignGroup.ids')?>];
-    for(var i = 0; i < ids.length; i++) {
-
-    }
-    */
     $('[type="checkbox"]').change(function(){
         var ids = [];
         $('tbody [type="checkbox"]:checked').each(function(){
