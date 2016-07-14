@@ -28,7 +28,7 @@ class Campaign extends AppModel {
 		return $aResult;
 	}
 
-	public function getList() {
+	public function getList($ids = null) {
 		$aData = $this->loadModel('PlugrushApi')->getCampaignList();
 		$aPlugRushData = Hash::combine($aData, '{n}.id', '{n}');
 
@@ -55,8 +55,6 @@ class Campaign extends AppModel {
 
 			if (in_array($src, array('plugrush', 'popads'))) { // ïîêà ìîæåì îáğàáîòàòü òîëüêî PlugRush, PopAds
 				$aSrcCampaignStats = $this->VoluumApi->getCampaignDetailedList($trkData['campaign_id']);
-				// fdebug($trkData['campaign_id'], 'tmp2.log');
-				// fdebug($aSrcCampaignStats, 'tmp2.log');
 				foreach ($aSrcCampaignStats as $row) {
 					$srcCampaignId = intval($row['src_campaign_id']);
 					// âûáèğàåì íóæíûå äàííûå èç âñåé ñòğîêè
@@ -86,13 +84,14 @@ class Campaign extends AppModel {
 						$cmpData = $aPopadsData[$srcCampaignId];
 						$cmpData['spent'] = round(floatval($cmpData['budget']), 2);
 					}
-
-					// Äîáàâëÿåì èíôó îá êàìïàíèè-èñòî÷íèêå
-					$aResult[] = array(
-						'Tracker' => $trkData,
-						'Campaign' => $cmpData, // â çàâ-òè îò trk source âûáğàòü äàííûå èç íóæíîãî èñòî÷íèêà òğàôôèêà
-						'TrackerStats' => $data
-					);
+					if (!$ids || in_array($cmpData['id'], $ids)) {
+						// Äîáàâëÿåì èíôó îá êàìïàíèè-èñòî÷íèêå
+						$aResult[] = array(
+							'Tracker' => $trkData,
+							'Campaign' => $cmpData, // â çàâ-òè îò trk source âûáğàòü äàííûå èç íóæíîãî èñòî÷íèêà òğàôôèêà
+							'TrackerStats' => $data
+						);
+					}
 				}
 			}
 		}

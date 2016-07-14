@@ -14,7 +14,7 @@ class AdminCampaignsController extends AdminController {
     );
 */
 
-    public function index() {
+    public function index($ids = null) {
         if (!$this->request->data('Filter.from')) {
             $this->request->data('Filter.from', date('Y-m-d', time() - 7 * DAY));
         }
@@ -22,7 +22,10 @@ class AdminCampaignsController extends AdminController {
             $this->request->data('Filter.to', date('Y-m-d'));
         }
         $this->Settings->adjustDateRange($this->request->data('Filter.from'), $this->request->data('Filter.to'));
-        $aCampaigns = $this->Campaign->getList();
+        if ($ids) {
+            $ids = explode(',', $ids);
+        }
+        $aCampaigns = $this->Campaign->getList($ids);
         $this->set('rowset', $aCampaigns);
 
         $options = array('Today', 'Yesterday', 'Last 7 days', 'Last 14 days', 'Last 30 days');
