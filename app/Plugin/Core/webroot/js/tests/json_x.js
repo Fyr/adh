@@ -30,7 +30,8 @@ QUnit.test('/core/json_x.js tests', function( assert ) {
         {key: 1234, title: 'row3'},
         {key: 222, title: 'row2'}
     ];
-    assert.deepEqual(JSON.getBy(data, 'key', 1234), {key: 1234, title: 'row3'}, 'getBy() found element');
+    assert.deepEqual(JSON.getBy(data, 'key', 1234), {key: 1234, title: 'row3'}, 'getBy() find element by key');
+    assert.deepEqual(JSON.getBy(data, 'title', 'row3'), {key: 1234, title: 'row3'}, 'getBy() find element by title');
     assert.strictEqual(JSON.getBy(data, 'key', 111), null, 'getBy() element not found');
 
     var data = [

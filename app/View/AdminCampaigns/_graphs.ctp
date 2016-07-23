@@ -13,22 +13,22 @@ function updateCharts() {
             if (checkJson(response)) {
                 $('#charts').html('<div style="border: 1px solid #e5e5e5; height: 400px;"></div>');
                 renderCharts(getChartsData(response.data.traffic));
-                $('#summary-report').html(Tmpl('summary-report').render(response));
-                // $('#domains-report').html(Tmpl('domains-report').render({data: response.data.domains}));
-                domainsGrid.setData(response.data.domains);
-                domainsGrid.render();
+                renderReports(response);
+
             }
         });
     } else {
         $('#charts, #summary-report, #domains-report').html('<div style="margin: 30px 0; text-align: center;">- Please, select campaigns -</div>');
     }
 }
-/*
+
 function renderReports(response) {
     $('#summary-report').html(Tmpl('summary-report').render(response));
-    $('#domains-report').html(Tmpl('domains-report').render(response));
+    domainsGrid.setData(response.data.domains);
+    domainsGrid.render();
+    // domainsGrid.initFilter();
 }
-*/
+
 function getChartsData(stats) {
     data = {};
     data.xAxis = [];

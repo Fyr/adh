@@ -69,7 +69,6 @@ class VoluumApi extends AppModel {
 		$auth = array(
 			'cwauth-token: '.$this->_getAuthToken()
 		);
-
 		$this->_writeLog(Configure::read('voluum.log'), 'REQUEST', 'URL: '.$url.' DATA: '.serialize($data));
 
 		$response = Cache::read($cacheKey, 'api');
@@ -119,17 +118,17 @@ class VoluumApi extends AppModel {
 		return $aData['rows'];
 	}
 
-	public function getCampaignDetailedList($campaignId) {
+	public function getCampaignDetailedList($campaignId, $campaign_id_var) {
 		// Какая-то начальная дата, чтобы выгрести все данные
 		// Чем более ранняя дата - тем дольше выполняется запрос
 		$from = $this->_parseDatetime(Configure::read('date.from'));
 		$to = $this->_parseDatetime(Configure::read('date.to')); // т.к. часы скидываются, нужно брать на день вперед
-		$data = "groupBy=custom-variable-7&include=active&filter1=campaign&filter1Value={$campaignId}&from={$from}&to={$to}";
+		$data = "groupBy=custom-variable-{$campaign_id_var}&include=active&filter1=campaign&filter1Value={$campaignId}&from={$from}&to={$to}";
 		$response = $this->sendRequest($data);
 		$aData = array();
 		foreach($response['rows'] as $row) {
 			// Игнорить ID кампаний типа "пусто" или "{campaign_id}"
-			$srcCampaignId = intval($row['customVariable7']);
+			$srcCampaignId = intval($row['customVariable'.$campaign_id_var]);
 			if ($srcCampaignId) {
 				$row['src_campaign_id'] = $srcCampaignId;
 				$aData[] = $row;

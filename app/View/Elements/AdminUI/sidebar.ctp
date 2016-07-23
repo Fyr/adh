@@ -38,7 +38,7 @@
 		$campaings = explode(',', $group['CampaignGroup']['campaign_ids']);
 ?>
 			<li class="nav-item">
-				<a href="<?=$this->Html->url(array('controller' => 'AdminCampaigns', 'action' => 'index', $group['CampaignGroup']['campaign_ids']))?>" class="nav-link">
+				<a href="<?=$this->Html->url(array('controller' => 'AdminCampaigns', 'action' => 'index', $group['CampaignGroup']['id']))?>" class="nav-link">
 					<?=$group['CampaignGroup']['title']?>
 					<span class="badge badge-success"><?=count($campaings)?></span>
 				</a>

@@ -1,6 +1,12 @@
-<div id="domains-report"></div>
+<div class="domains">
+    <div id="domains-filter"></div>
+    <div id="domains-filter-list"></div>
+    <div id="domains-report"></div>
+</div>
 <script type="text/javascript">
-var domainsGrid;
+
+
+var domainsGrid, columns;
 $(function(){
     // var formatPrice = function(val) {
     function formatPrice(val) {
@@ -26,7 +32,7 @@ $(function(){
         return Format.tag('td', {align: 'center'}, '-');
     };
 
-    var columns = [
+    columns = [
         {key: 'domain', label: 'Domain'},
         {key: 'Tracker.visits', label: 'Visits', format: 'int'},
         {key: 'Tracker.clicks', label: 'Clicks', format: 'int'},
@@ -41,86 +47,95 @@ $(function(){
         {key: 'Sources.plugrush.raws', label: 'Raws', format: 'int'},
         {key: 'Sources.plugrush.amount', label: 'Amount', render: formatPrice},
     ];
-    domainsGrid = new TableGrid('#domains-report', columns);
-    var renderHeader = domainsGrid.renderHeader;
+
+    // $('#domains-filter').html(tmpl('tmpl-domains-add-filter'));
+
+    domainsGrid = new DomainListGrid();
+    domainsGrid.init('#domains-report', columns);
+    var parent = {};
+/*
+    var parent_renderHeader = domainsGrid.renderHeader;
     domainsGrid.renderHeader = function() {
         var html = Format.tag('tr', null,
             Format.tag('th', {colspan: 10, class: 'grid-x-header'}, 'Tracker') + Format.tag('th', {colspan: 3, class: 'grid-x-header'}, 'PlugRush.com')
         );
-        return html + renderHeader();
-    }
-
-    domainsGrid.init();
+        return html + parent_renderHeader();
+    };
+*/
+    /*
+    var parent_render = domainsGrid.render;
+    domainsGrid.render = function() {
+        parent_render();
+        JSON.iterate(columns, function(col){
+            if (col.key != 'domain') {
+                $('#domainfilter select#cols').append(Format.tag('option', {value: col.key}, col.label));
+            }
+        });
+    };
+    */
 });
 </script>
 
-<script type="text/x-tmpl" id="tmpl-domains-report">
-<table class="table table-striped table-bordered table-hover table-header-fixed dataTable">
-    <thead>
-        <tr>
-            <th colspan="10" style="">Tracker</th>
-            <th colspan="3" style="border-bottom: 1px solid #e7ecf1; text-align: center;">PlugRush.com</th>
-        </tr>
-        <tr>
-            <th>Domain</th>
-            <th>Visits</th>
-            <th>Clicks</th>
-            <th>Conv.</th>
-            <th>Rev.</th>
-            <th>Cost</th>
-            <th>Profit</th>
-            <th>CPV</th>
-            <th>CTR</th>
-            <th>ROI</th>
-
-            <th>Uniques</th>
-            <th>Raws</th>
-            <th>Cost</th>
-        </tr>
-    </thead>
-    <tbody>
+<script type="text/x-tmpl" id="tmpl-domains-filter">
+    <form id="domainFilter" class="form-inline">
+        <div class="form-group">
+            <select id="cols" class="form-control input-small">
 {%
-    for(var i = 0; i < o.data.length; i++) {
-        var row = o.data[i];
+    JSON.iterate(o.columns, function(col){
+        if (col.key !== 'domain') {
 %}
-        <tr>
-            <td>{%=row.domain%}</td>
-{%
-        if (row.Tracker) {
-%}
-            <td align="right">{%=row.Tracker.visits%}</td>
-            <td align="right">{%=row.Tracker.clicks%}</td>
-            <td align="right">{%=row.Tracker.conversions%}</td>
-            <td align="right">{%=Price.format(row.Tracker.revenue)%}</td>
-            <td align="right">{%=Price.format(row.Tracker.cost)%}</td>
-            <td align="right" class="{%=(row.Tracker.profit < 0) ? 'font-red-thunderbird' : 'font-green-jungle'%}">{%=Price.format(row.Tracker.profit)%}</td>
-            <td align="right">{%=Price.format(row.Tracker.cpv)%}</td>
-            <td align="right">{%=row.Tracker.ctr%}%</td>
-            <td align="right">{%=row.Tracker.roi%}%</td>
-{%
-        } else {
-%}
-            <td colspan="9" align="center"> - no data - </td>
-{%
-
-        }
-        if (row.Sources && row.Sources.plugrush) {
-            var _row = row.Sources.plugrush;
-%}
-            <td align="right">{%=_row.uniques%}</td>
-            <td align="right">{%=_row.raws%}</td>
-            <td align="right">{%=Price.format(_row.amount)%}</td>
-{%
-        } else {
-%}
-            <td colspan="3" align="center"> - no data - </td>
+                <option value="{%=col.key%}">{%=col.label%}</option>
 {%
         }
+    });
 %}
-        </tr>
+            </select>
+        </div>
+        <div class="form-group">
+            <select id="rule" class="form-control input-xsmall" onchange="domainsGrid.onSelectFilterRule()">
+{%
+    JSON.iterate(o.rules, function(rule){
+%}
+                <option value="{%=rule.key%}">{%#rule.label%}</option>
+{%
+    });
+%}
+            </select>
+        </div>
+        <div class="form-group filterOptions">
+            <span class="filter-options filter-options-default">
+                <input type="text" class="form-control input-xsmall" />
+            </span>
+            <span class="filter-options filter-options-range" style="display: none;">
+                from <input type="text" class="form-control input-xsmall" name="from" />
+                to <input type="text" class="form-control input-xsmall" name="to" />
+            </span>
+        </div>
+        <button type="button" class="btn btn-success" onclick="domainsGrid.addFilter()">
+            <i class="fa fa-plus"></i>
+            Add
+        </button>
+    </form>
+</script>
+
+<script type="text/x-tmpl" id="tmpl-domains-filter-list">
+<div class="filter-list-header">Applied filters:</div>
+{%
+    for(var i = 0; i < o.filters.length; i++) {
+        var filter = o.filters[i];
+        var col = JSON.getBy(o.columns, 'key', filter.col);
+        var rule = JSON.getBy(o.rules, 'key', filter.rule);
+        var filterStr;
+        if (filter.rule == 'range') {
+            filterStr = filter.options.from + ' &le; ' + col.label + ' &le; ' + filter.options.to;
+        } else {
+            filterStr = col.label + ' ' + rule.label + ' ' + filter.options;
+        }
+%}
+    <div class="filter-list-item">
+        <a class="font-red-thunderbird" href="javascript:;" onclick="domainsGrid.removeFilter({%=i%})"><i class="fa fa-remove"></i></a> {%#filterStr%}
+    </div>
 {%
     }
 %}
-    </tbody>
-</table>
 </script>

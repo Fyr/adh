@@ -14,6 +14,7 @@
 		'/Core/js/json_x',
 		'/Table/js/format',
 		'/Table/js/table_grid',
+		'domains-grid'
 	), array('inline' => false));
 	// echo $this->element('Table.js_table_grid'); // нужен для table_grid
 
@@ -77,29 +78,40 @@
 	$checkboxes = true;
 
 	foreach($rowset as &$row) {
+		$created_date = (isset($row['Campaign']['created'])) ? date('d.m.Y', strtotime($row['Campaign']['created'])) : '';
+		$created_time = (isset($row['Campaign']['created'])) ? date('H:i', strtotime($row['Campaign']['created'])) : '';
 		$row['Campaign']['created'] = implode('<br />', array(
-			date('d.m.Y', strtotime($row['Campaign']['created'])),
-			date('H:i', strtotime($row['Campaign']['created'])),
+			$created_date,
+			$created_time,
 			'',
 			date('d.m.Y', strtotime($row['Tracker']['created'])),
 			date('H:i', strtotime($row['Tracker']['created'])),
 		));
 
+		$status = (isset($row['Campaign']['status'])) ? $row['Campaign']['status'] : '';
 		$traffic_percent = (isset($row['Campaign']['traffic_percent'])) ? ' ('.$row['Campaign']['traffic_percent'].'%)' : '';
 		$traffic_info = (isset($row['Campaign']['traffic_info'])) ? $row['Campaign']['traffic_info'] : '';
 		$row['Campaign']['status'] = implode('<br />', array(
-			$row['Campaign']['status'].$traffic_percent,
+			$status.$traffic_percent,
 			$traffic_info
 		));
 
-		$attrs = array('title' => $row['Campaign']['url']);
 		$icon = $this->Html->image('logo_'.$row['Tracker']['src_type'].'.png', array(
 			'class' => 'logo-service',
 			'alt' => $row['Tracker']['src_title']
 		));
+		$title = '';
+		if (isset($row['Campaign']['id']) && isset($row['Campaign']['title'])) {
+			$title = $icon.' '.$row['Tracker']['src_title'].' - '.'#'.$row['Campaign']['id'].' '.$row['Campaign']['title'];
+		}
+		$url = '';
+		if (isset($row['Campaign']['url'])) {
+			$attrs = array('title' => $row['Campaign']['url']);
+			$url = (isset($row['Campaign']['url'])) ? $this->Html->link(substr($row['Campaign']['url'], 0, 80) . '...', $row['Campaign']['url'], $attrs) : '';
+		}
 		$row['Campaign']['title'] = implode('<br />', array(
-			$icon.' '.$row['Tracker']['src_title'].' - '.'#'.$row['Campaign']['id'].' '.$row['Campaign']['title'],
-			$this->Html->link(substr($row['Campaign']['url'], 0, 80).'...', $row['Campaign']['url'], $attrs),
+			$title,
+			$url,
 			'',
 			'Tracker: #'.$row['Tracker']['campaign_id'],
 			$row['Tracker']['campaign_name'],
@@ -140,11 +152,15 @@
 		$row['TrackerStats']['roi'] = $this->Html->tag('span', $row['TrackerStats']['roi'].'%', compact('class'));
 
 		// передаем через ID чекбокса все необходимые данные (ID трэкера, тип источника, ID источника)
-		$row['Campaign']['id'] = implode(',', array(
-			$row['Tracker']['campaign_id'],
-			$row['Tracker']['src_type'],
-			$row['Campaign']['id']
-		));
+		if (isset($row['Campaign']['id'])) {
+			$row['Campaign']['id'] = implode(',', array(
+				$row['Tracker']['campaign_id'],
+				$row['Tracker']['src_type'],
+				$row['Campaign']['id']
+			));
+		} else {
+			$row['Campaign']['id'] = '';
+		}
 	}
 
 
@@ -159,6 +175,8 @@
 	}
 	.dataTable tbody td:nth-child(2), td:nth-child(3), td:nth-child(5), td:nth-child(6), td:nth-child(7) { white-space: nowrap; }
 	.table > thead > tr > th.grid-x-header {border-bottom: 1px solid #e7ecf1; text-align: center;}
+	.filter-list-header {font-weight: bold; margin: 10px 0 5px 0;}
+	.filter-list-item {margin: 3px 0;}
 </style>
 <div class="row">
 	<div class="col-md-12">
@@ -201,14 +219,14 @@
 				<?=$this->PHTableGrid->render('Campaign', compact('columns', 'rowset', 'pagination', 'row_actions', 'checkboxes'))?>
 			</div>
 <?
-	echo $this->PHForm->create('Campaign');
+	// echo $this->PHForm->create('Campaign');
 	$tabs = array(
 		'Graphs' => $this->element('../AdminCampaigns/_graphs'),
 		'Summary Report' => $this->element('../AdminCampaigns/_report'),
 		'Site Targeting' => $this->element('../AdminCampaigns/_domains')
 	);
-	echo $this->element('AdminUI/tabs', compact('tabs'));
-	echo $this->PHForm->end();
+	echo $this->Html->div('tabbable-bordered', $this->element('AdminUI/tabs', compact('tabs')));
+	// echo $this->PHForm->end();
 ?>
 		</div>
 	</div>

@@ -3,7 +3,7 @@ App::uses('AppController', 'Controller');
 App::uses('AdminController', 'Controller');
 class AdminCampaignsController extends AdminController {
     public $name = 'AdminCampaigns';
-    public $uses = array('Campaign', 'VoluumApi', 'PlugRushApi', 'Settings');
+    public $uses = array('Campaign', 'VoluumApi', 'PlugRushApi', 'Settings', 'CampaignGroup');
     public $helpers = array('Price');
 /*
     public $paginate = array(
@@ -14,7 +14,7 @@ class AdminCampaignsController extends AdminController {
     );
 */
 
-    public function index($ids = null) {
+    public function index($group_id = null) {
         if (!$this->request->data('Filter.from')) {
             $this->request->data('Filter.from', date('Y-m-d', time() - 7 * DAY));
         }
@@ -22,8 +22,12 @@ class AdminCampaignsController extends AdminController {
             $this->request->data('Filter.to', date('Y-m-d'));
         }
         $this->Settings->adjustDateRange($this->request->data('Filter.from'), $this->request->data('Filter.to'));
-        if ($ids) {
-            $ids = explode(',', $ids);
+        $ids = null;
+        if ($group_id) {
+            $group = $this->CampaignGroup->findById($group_id);
+            if ($group) {
+                $ids = explode(',', $group['CampaignGroup']['campaign_ids']);
+            }
         }
         $aCampaigns = $this->Campaign->getList($ids);
         $this->set('rowset', $aCampaigns);

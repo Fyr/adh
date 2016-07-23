@@ -1,13 +1,16 @@
-var TableGrid = function(container, columns, data) {
+var TableGrid = function() {
 	var self = this;
-	var $self = $(container);
+	self.$ = [];
 
-	self.columns = columns;
-	self.data = data;
+	self.columns = [];
+	self.data = [];
 	self.sortKey = null;
 	self.sortDesc = false;
 
-	this.init = function() {
+	this.init = function(container, columns, data) {
+		self.$ = $(container);
+		self.columns = columns;
+		self.data = data;
 		this.initColumns();
 	};
 
@@ -29,15 +32,24 @@ var TableGrid = function(container, columns, data) {
 		JSON.sortBy(self.data, colKey, lDesc);
 		this.render();
 	};
+/*
+	this.filterBy = function(colKey, filterType, options) {
 
+	};
+*/
 	this.render = function() {
 		var html = Format.tag('table', {class: 'table table-striped table-bordered table-hover table-header-fixed dataTable'},
 			Format.tag('thead', null, this.renderHeader()) + Format.tag('tbody', null, this.renderBody())
 		);
-		$self.html(html);
+		self.$.html(html);
 		this.initHandlers();
 	};
 
+	/*
+	this.renderHeader = function() {
+		return this._renderHeader();
+	};
+	*/
 	this.renderHeader = function() {
 		var html = '';
 		for(var i = 0; i < self.columns.length; i++) {
@@ -45,7 +57,6 @@ var TableGrid = function(container, columns, data) {
 			var attrs = {id: col.key, class: 'grid-header'};
 			if (col.sortable) {
 				attrs.class+= ' grid-sortable sorting';
-				console.log(self.sortKey, col.key, self.sortDesc, self.sortKey == col.key);
 				if (self.sortKey == col.key) {
 					attrs.class+= (self.sortDesc) ? ' sorting_desc' : ' sorting_asc';
 				}

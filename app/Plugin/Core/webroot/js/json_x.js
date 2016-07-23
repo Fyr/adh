@@ -9,7 +9,7 @@ JSON.get = function(data, key) {
 
 JSON.getBy = function(data, key, value) {
     return JSON.iterate(data, function(e){
-        return (e.key == value);
+        return (e[key] == value);
     });
 }
 
@@ -75,4 +75,15 @@ function in_array(needle, haystack) {
 
 function isset(val) {
     return typeof(val) != 'undefined' && val !== null;
+}
+
+function extend(self, fnObj) {
+    fnObj.call(self);
+
+    self.parent = {};
+    for(var prop in self) {
+        if (typeof(self[prop]) == 'function') {
+            self.parent[prop] = self[prop];
+        }
+    }
 }

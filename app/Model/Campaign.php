@@ -34,11 +34,10 @@ class Campaign extends AppModel {
 
 		$aData = $this->loadModel('PopadsApi')->getCampaignList();
 		$aPopadsData = Hash::combine($aData, '{n}.id', '{n}');
-		// fdebug($aPopadsData);
+		fdebug($aPopadsData);
 		$this->VoluumApi = $this->loadModel('VoluumApi');
 		$aTrackerCampaigns = $this->VoluumApi->getTrackerCampaignList();
 
-		// fdebug($aTrackerCampaigns, 'tmp1.log');
 		$aResult = array();
 		foreach($aTrackerCampaigns as $data) {
 			$src = strtolower($data['trafficSource']);
@@ -53,8 +52,10 @@ class Campaign extends AppModel {
 				'cost_model' => $data['costModel']
 			);
 
+			$campaign_id_var = $this->_getCampaignId($data['campaignUrl']);
 			if (in_array($src, array('plugrush', 'popads'))) { // пока можем обработать только PlugRush, PopAds
-				$aSrcCampaignStats = $this->VoluumApi->getCampaignDetailedList($trkData['campaign_id']);
+				$aSrcCampaignStats = $this->VoluumApi->getCampaignDetailedList($trkData['campaign_id'], $campaign_id_var);
+				fdebug($aSrcCampaignStats, 'tmp1.log');
 				foreach ($aSrcCampaignStats as $row) {
 					$srcCampaignId = intval($row['src_campaign_id']);
 					// выбираем нужные данные из всей строки
@@ -75,6 +76,7 @@ class Campaign extends AppModel {
 						id, created, status, url, paid, bid, spent, traffic
 					*/
 					$cmpData = array();
+					fdebug($srcCampaignId."\r\n");
 					if (isset($aPlugRushData[$srcCampaignId])) {
 						$cmpData = $aPlugRushData[$srcCampaignId];
 						$cmpData['traffic_percent'] = round($cmpData['traffic_received'] / $cmpData['traffic_ordered'] * 100);
@@ -83,19 +85,42 @@ class Campaign extends AppModel {
 					} elseif (isset($aPopadsData[$srcCampaignId])) {
 						$cmpData = $aPopadsData[$srcCampaignId];
 						$cmpData['spent'] = round(floatval($cmpData['budget']), 2);
+						fdebug($cmpData, 'tmp2.log');
 					}
-					if (!$ids || in_array($cmpData['id'], $ids)) {
+					// if (!$ids || in_array($cmpData['id'], $ids)) {
 						// Добавляем инфу об кампании-источнике
 						$aResult[] = array(
 							'Tracker' => $trkData,
 							'Campaign' => $cmpData, // в зав-ти от trk source выбрать данные из нужного источника траффика
 							'TrackerStats' => $data
 						);
-					}
+					// }
 				}
 			}
 		}
 		return $aResult;
+	}
+
+	private function _getCampaignId($url) {
+		parse_str($url, $vars);
+		$i = 0;
+		// ищем переменную campaign_id или campaignid
+		foreach($vars as $var => $val) {
+			$i++;
+			if (strtolower($var) == 'campaignid' || strtolower($var) == 'campaign_id') {
+				return $i;
+			}
+		}
+
+		// если ее нету - ищем campaign
+		$i = 0;
+		foreach($vars as $var => $val) {
+			$i++;
+			if (strtolower($var) == 'campaign') {
+				return $i;
+			}
+		}
+		return 0;
 	}
 
 	/**
