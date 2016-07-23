@@ -32,11 +32,7 @@ var TableGrid = function() {
 		JSON.sortBy(self.data, colKey, lDesc);
 		this.render();
 	};
-/*
-	this.filterBy = function(colKey, filterType, options) {
 
-	};
-*/
 	this.render = function() {
 		var html = Format.tag('table', {class: 'table table-striped table-bordered table-hover table-header-fixed dataTable'},
 			Format.tag('thead', null, this.renderHeader()) + Format.tag('tbody', null, this.renderBody())
@@ -45,11 +41,6 @@ var TableGrid = function() {
 		this.initHandlers();
 	};
 
-	/*
-	this.renderHeader = function() {
-		return this._renderHeader();
-	};
-	*/
 	this.renderHeader = function() {
 		var html = '';
 		for(var i = 0; i < self.columns.length; i++) {
@@ -67,6 +58,7 @@ var TableGrid = function() {
 	};
 
 	this.renderBody = function() {
+		console.log('renderBody');
 		var html = '';
 		for(var i = 0; i < self.data.length; i++) {
 			var row = self.data[i];

@@ -98,7 +98,9 @@ var DomainListGrid = function(container, columns, data) {
 			}
 		});
 		self.data = newData;
-		JSON.sortBy(self.data, self.sortKey, self.sortDesc);
+		if (self.sortKey) {
+			JSON.sortBy(self.data, self.sortKey, self.sortDesc);
+		}
 		self.render();
 	};
 }
