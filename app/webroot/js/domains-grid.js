@@ -14,12 +14,10 @@ var DomainListGrid = function(container, columns, data) {
 	self.filters = [];
 	self.oldData = [];
 
-	/*
 	this.setData = function(data) {
 		self.data = data;
 		self.oldData = data;
 	};
-	*/
 
 	this.render = function() {
 		$('#domains-filter').html(Tmpl('domains-filter').render(self));
@@ -72,7 +70,6 @@ var DomainListGrid = function(container, columns, data) {
 			var filter = self.filters[i];
 			var value = JSON.get(data, filter.col);
 			var lFlag = false;
-			console.log(value, filter, data);
 			if (filter.rule == 'gt') {
 				lFlag = value > filter.options;
 			} else if (filter.rule == 'gt_eq') {
@@ -94,18 +91,14 @@ var DomainListGrid = function(container, columns, data) {
 	};
 
 	this.applyFilters = function() {
-		if (!self.oldData.length) {
-			self.oldData = self.data;
-		}
-		self.data = self.oldData;
 		var newData = [];
-		JSON.iterate(self.data, function(e){
+		JSON.iterate(self.oldData, function(e){
 			if (self.isFiltered(e)) {
 				newData.push(e);
 			}
 		});
-		self.setData(newData);
+		self.data = newData;
+		JSON.sortBy(self.data, self.sortKey, self.sortDesc);
 		self.render();
-		self.setData(oldData);
 	};
 }
