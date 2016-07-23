@@ -58,7 +58,6 @@ var TableGrid = function() {
 	};
 
 	this.renderBody = function() {
-		console.log('renderBody');
 		var html = '';
 		for(var i = 0; i < self.data.length; i++) {
 			var row = self.data[i];
