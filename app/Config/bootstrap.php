@@ -44,25 +44,16 @@ Configure::write('date', array(
 	'to' => time() + DAY
 ));
 
-Configure::write('plugrush', array(
-	'title' => 'PlugRush.com',
-	'api' => 'https://www.plugrush.com/api',
-	'log' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'plugrush_api.log',
+Cache::config('tasks', array(
+	'engine' => 'File',
+	'duration' => '+999 days',
+	'probability' => 100,
+	'prefix' => 'tasks_',
+	'serialize' => true,
+	'mask' => 0664,
 ));
 
-Configure::write('voluum', array(
-	'title' => 'Voluum.com',
-	'token_api' => 'https://security.voluum.com/login',
-	'token_cache' => CACHE.'api'.DS.'voluum_auth_token',
-	'api' => 'https://reports.voluum.com/report',
-	'log' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'voluum_api.log',
-));
-
-Configure::write('popads', array(
-	'title' => 'PopAds.com',
-	'api' => 'https://www.popads.net/api',
-	'log' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'popads_api.log',
-));
+require_once('api.php');
 
 function fdebug($data, $logFile = 'tmp.log', $lAppend = true) {
 	file_put_contents($logFile, mb_convert_encoding(print_r($data, true), 'cp1251', 'utf8'), ($lAppend) ? FILE_APPEND : null);
