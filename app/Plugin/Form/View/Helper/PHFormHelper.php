@@ -75,7 +75,6 @@ class PHFormHelper extends FormHelper {
 			*/
 			$label = $this->_getLabel($fieldName, $options);
 			preg_match('/\>(.+)\<\/label/', $label, $match);
-			fdebug($match);
 			$options['placeholder'] = $match[1];
 			$options['between'] = (isset($options['between'])) ? $options['between'] : '<div class="input-icon"><i class="'.$options['icon'].'"></i>';
 			$options['after'] = (isset($options['after'])) ? $options['after'] : '</div>';

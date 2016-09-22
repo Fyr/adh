@@ -72,6 +72,7 @@ class CollectDataTask extends AppShell {
             // $data['src_clicks'] = intval($row['traffic_received']);
             $data['cost'] = floatval($row['spent']);
             $data['src_data'] = serialize($row);
+            $data['trk_data'] = null;
 
             $this->Campaign->clear();
             $this->Campaign->save($data);
