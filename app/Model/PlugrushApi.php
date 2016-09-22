@@ -4,6 +4,8 @@ App::uses('Curl', 'Vendor');
 class PlugrushApi extends AppModel {
 	public $useTable = false;
 
+	const TYPE = 'plugrush';
+
 	private function _sendRequest($method, $data = array()) {
 		$data = am(array(
 			'user' => Configure::read('Settings.plugrush_email'),
@@ -16,10 +18,12 @@ class PlugrushApi extends AppModel {
 
 		$this->_writeLog(Configure::read('plugrush.log'), 'REQUEST', 'URL: '.$url);
 
-		$response = Cache::read($cacheKey, 'api');
-		if ($response) {
-			$this->_writeLog(Configure::read('plugrush.log'), 'CACHE', $response);
-			return $response['data'];
+		if ($cacheStorage = Configure::read('plugrush.cache')) {
+			$response = Cache::read($cacheKey, $cacheStorage);
+			if ($response) {
+				$this->_writeLog(Configure::read('plugrush.log'), 'CACHE', $response);
+				return $response['data'];
+			}
 		}
 
 		$response = $curl->setOption(CURLOPT_SSL_VERIFYPEER, false)->sendRequest();
@@ -46,7 +50,9 @@ class PlugrushApi extends AppModel {
 			throw new Exception('PlugRush API Error: No data from server');
 		}
 
-		Cache::write($cacheKey, $response, 'api');
+		if ($cacheStorage = Configure::read('plugrush.cache')) {
+			Cache::write($cacheKey, $response, $cacheStorage);
+		}
 		return $response['data'];
 	}
 

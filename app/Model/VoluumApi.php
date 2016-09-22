@@ -71,10 +71,12 @@ class VoluumApi extends AppModel {
 		);
 		$this->_writeLog(Configure::read('voluum.log'), 'REQUEST', 'URL: '.$url.' DATA: '.serialize($data));
 
-		$response = Cache::read($cacheKey, 'api');
-		if ($response) {
-			$this->_writeLog(Configure::read('voluum.log'), 'CACHE', $response);
-			return $response;
+		if ($cacheStorage = Configure::read('voluum.cache')) {
+			$response = Cache::read($cacheKey, $cacheStorage);
+			if ($response) {
+				$this->_writeLog(Configure::read('voluum.log'), 'CACHE', $response);
+				return $response;
+			}
 		}
 
 		$response = $curl->setOption(CURLOPT_HTTPHEADER, $auth)
@@ -99,7 +101,9 @@ class VoluumApi extends AppModel {
 			throw new Exception('Voluum API Error! '.Hash::get($response, 'error.code').': '.$errMsg);
 		}
 
-		Cache::write($cacheKey, $response, 'api');
+		if ($cacheStorage = Configure::read('voluum.cache')) {
+			Cache::write($cacheKey, $response, $cacheStorage);
+		}
 		return $response;
 	}
 
@@ -118,11 +122,13 @@ class VoluumApi extends AppModel {
 		return $aData['rows'];
 	}
 
-	public function getCampaignDetailedList($campaignId, $campaign_id_var) {
+	public function getCampaignDetailedList($campaignURL) {
 		// Какая-то начальная дата, чтобы выгрести все данные
 		// Чем более ранняя дата - тем дольше выполняется запрос
 		$from = $this->_parseDatetime(Configure::read('date.from'));
 		$to = $this->_parseDatetime(Configure::read('date.to')); // т.к. часы скидываются, нужно брать на день вперед
+		$campaign_id_var = $this->_getCampaignId($campaignURL);
+		$campaignId = $this->getCampaignUID($campaignURL);
 		$data = "groupBy=custom-variable-{$campaign_id_var}&include=active&filter1=campaign&filter1Value={$campaignId}&from={$from}&to={$to}";
 		$response = $this->sendRequest($data);
 		$aData = array();
@@ -130,7 +136,7 @@ class VoluumApi extends AppModel {
 			// Игнорить ID кампаний типа "пусто" или "{campaign_id}"
 			$srcCampaignId = intval($row['customVariable'.$campaign_id_var]);
 			if ($srcCampaignId) {
-				$row['src_campaign_id'] = $srcCampaignId;
+				$row['src_id'] = $srcCampaignId;
 				$aData[] = $row;
 			}
 		}
@@ -159,5 +165,31 @@ class VoluumApi extends AppModel {
 			}
 		}
 		return $aData;
+	}
+
+	private function _getCampaignId($url) {
+		parse_str($url, $vars);
+		$i = 0;
+		// ищем переменную campaign_id или campaignid
+		foreach($vars as $var => $val) {
+			$i++;
+			if (strtolower($var) == 'campaignid' || strtolower($var) == 'campaign_id') {
+				return $i;
+			}
+		}
+
+		// если ее нету - ищем campaign
+		$i = 0;
+		foreach($vars as $var => $val) {
+			$i++;
+			if (strtolower($var) == 'campaign') {
+				return $i;
+			}
+		}
+		return 0;
+	}
+
+	public function getCampaignUID($url) {
+		return str_replace('/', '', parse_url($url, PHP_URL_PATH));
 	}
 }

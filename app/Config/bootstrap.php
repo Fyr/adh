@@ -35,7 +35,7 @@ Configure::write('Config.language', 'eng');
 
 /* -= Custom settings =- */
 Configure::write('domain', array(
-	'url' => $_SERVER['SERVER_NAME'],
+	'url' => isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '',
 	'title' => 'AdHelper.dev'
 ));
 

@@ -4,123 +4,21 @@ App::uses('PlugrushApi', 'Model');
 App::uses('PopadsApi', 'Model');
 App::uses('VoluumApi', 'Model');
 class Campaign extends AppModel {
-	public $useTable = false;
+
+	const TYPE_PLUGRUSH = 'plugrush';
+	const TYPE_POPADS = 'popads';
 
 	public function getSourceList() {
-		$aSrc = array('plugrush' => 'PlugrushApi', 'popads' => 'PopadsApi');
-		$aResult = array();
-		foreach($aSrc as $src_type => $srcApi) {
-			$aData = $this->loadModel($srcApi)->getCampaignList();
-			foreach($aData as $row) {
-				$id = $row['id'];
-				$src_title = Configure::read($src_type.'.title');
-				if ($src_type == 'popads') {
-					$url = $row['url'][0];
-					$title = $row['name'];
-				} else {
-					$url = $row['url'];
-					$title = $row['title'];
-				}
-
-				$aResult[] = compact('id', 'src_type', 'src_title', 'title', 'url');
-			}
-		}
-		return $aResult;
+		$fields = array('id', 'src_id', 'src_type', 'src_name', 'url', 'active', 'status');
+		$aResult = $this->find('all', compact('fields'));
+		return Hash::extract($aResult, '{n}.Campaign');
 	}
 
 	public function getList($ids = null) {
-		$aData = $this->loadModel('PlugrushApi')->getCampaignList();
-		$aPlugRushData = Hash::combine($aData, '{n}.id', '{n}');
-
-		$aData = $this->loadModel('PopadsApi')->getCampaignList();
-		$aPopadsData = Hash::combine($aData, '{n}.id', '{n}');
-		fdebug($aPopadsData);
-		$this->VoluumApi = $this->loadModel('VoluumApi');
-		$aTrackerCampaigns = $this->VoluumApi->getTrackerCampaignList();
-
-		$aResult = array();
-		foreach($aTrackerCampaigns as $data) {
-			$src = strtolower($data['trafficSource']);
-			$trkData = array(
-				'created' => date('Y-m-d H:i:s', strtotime($data['created'])),
-				'campaign_id' => $data['campaignId'],
-				'campaign_name' => $data['campaignName'],
-				'country' => $data['campaignCountry'],
-				'src_type' => $src, // PlugRush
-				'src_title' => Configure::read($src.'.title'),
-				'redirect_type' => ucfirst(strtolower($data['clickRedirectType'])),
-				'cost_model' => $data['costModel']
-			);
-
-			$campaign_id_var = $this->_getCampaignId($data['campaignUrl']);
-			if (in_array($src, array('plugrush', 'popads'))) { // пока можем обработать только PlugRush, PopAds
-				$aSrcCampaignStats = $this->VoluumApi->getCampaignDetailedList($trkData['campaign_id'], $campaign_id_var);
-				fdebug($aSrcCampaignStats, 'tmp1.log');
-				foreach ($aSrcCampaignStats as $row) {
-					$srcCampaignId = intval($row['src_campaign_id']);
-					// выбираем нужные данные из всей строки
-					$data = array(
-						'src_campaign_id' => $srcCampaignId,
-						'visits' => intval($row['visits']),
-						'clicks' => intval($row['clicks']),
-						'conversion' => intval($row['conversions']),
-						'revenue' => floatval($row['revenue']), // $0.00
-						'cost' => floatval($row['cost']), // $0.00
-						'profit' => floatval($row['profit']), // $0.00
-						'cpv' => floatval($row['cpv']), // $0.0000
-						'ctr' => floatval($row['ctr']), // 0.00%
-						'roi' => floatval($row['roi']), // +-100.00%
-					);
-
-					/* Campaign fields:
-						id, created, status, url, paid, bid, spent, traffic
-					*/
-					$cmpData = array();
-					fdebug($srcCampaignId."\r\n");
-					if (isset($aPlugRushData[$srcCampaignId])) {
-						$cmpData = $aPlugRushData[$srcCampaignId];
-						$cmpData['traffic_percent'] = round($cmpData['traffic_received'] / $cmpData['traffic_ordered'] * 100);
-						$cmpData['traffic_info'] = $cmpData['traffic_received'].'/'.$cmpData['traffic_ordered'];
-						$cmpData['type'] = str_replace('_', '/', $cmpData['type']);
-					} elseif (isset($aPopadsData[$srcCampaignId])) {
-						$cmpData = $aPopadsData[$srcCampaignId];
-						$cmpData['spent'] = round(floatval($cmpData['budget']), 2);
-						fdebug($cmpData, 'tmp2.log');
-					}
-					// if (!$ids || in_array($cmpData['id'], $ids)) {
-						// Добавляем инфу об кампании-источнике
-						$aResult[] = array(
-							'Tracker' => $trkData,
-							'Campaign' => $cmpData, // в зав-ти от trk source выбрать данные из нужного источника траффика
-							'TrackerStats' => $data
-						);
-					// }
-				}
-			}
-		}
+		$conditions = array('id' => $ids);
+		$order = 'created DESC';
+		$aResult = $this->find('all', compact('conditions', 'order'));
 		return $aResult;
-	}
-
-	private function _getCampaignId($url) {
-		parse_str($url, $vars);
-		$i = 0;
-		// ищем переменную campaign_id или campaignid
-		foreach($vars as $var => $val) {
-			$i++;
-			if (strtolower($var) == 'campaignid' || strtolower($var) == 'campaign_id') {
-				return $i;
-			}
-		}
-
-		// если ее нету - ищем campaign
-		$i = 0;
-		foreach($vars as $var => $val) {
-			$i++;
-			if (strtolower($var) == 'campaign') {
-				return $i;
-			}
-		}
-		return 0;
 	}
 
 	/**
