@@ -14,10 +14,12 @@ class PopadsApi extends AppModel {
 
 		$this->_writeLog(Configure::read('popads.log'), 'REQUEST', 'URL: '.$url);
 
-		$response = Cache::read($cacheKey, 'api');
-		if ($response) {
-			$this->_writeLog(Configure::read('popads.log'), 'CACHE', $response);
-			return $response;
+		if ($cacheStorage = Configure::read('popads.cache')) {
+			$response = Cache::read($cacheKey, $cacheStorage);
+			if ($response) {
+				$this->_writeLog(Configure::read('popads.log'), 'CACHE', $response);
+				return $response;
+			}
 		}
 
 		$response = $curl->setOption(CURLOPT_SSL_VERIFYPEER, false)->sendRequest();
@@ -36,7 +38,9 @@ class PopadsApi extends AppModel {
 			throw new Exception('PopAds API Error: '.$response['errors'][0]['title']);
 		}
 
-		Cache::write($cacheKey, $response, 'api');
+		if ($cacheStorage = Configure::read('popads.cache')) {
+			Cache::write($cacheKey, $response, $cacheStorage);
+		}
 		return $response;
 	}
 
