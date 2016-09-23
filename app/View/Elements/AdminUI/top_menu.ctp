@@ -7,7 +7,7 @@
 				<!-- img src="/img/logo-white.png" alt="logo" class="logo-default" style="height: 30px; position: relative; top: -7px;" /-->
 				<img class="logo-default" alt="logo" src="http://<?=Configure::read('domain.url')?>/assets/layouts/layout/img/logo.png">
 			</a>
-			<div class="menu-toggler sidebar-toggler"> </div>
+			<!-- div class="menu-toggler sidebar-toggler"> </div-->
 		</div>
 		<div id="ajax-loader" style="margin-left: 10px; float: left; color: #fff; font-size: 16px; padding: 10px; display: none;">
 			<img src="/img/ajax-loader.gif" alt="" style="height: 24px; position: relative; top: -2px;" /> Loading...
@@ -60,6 +60,11 @@
 						<li>
 							<a href="<?=$this->Html->url(array('controller' => 'AdminSettings', 'action' => 'accounts'))?>">
 								<i class="icon-people"></i> <?=__('Accounts')?>
+							</a>
+						</li>
+						<li>
+							<a href="<?=$this->Html->url(array('controller' => 'AdminTasks', 'action' => 'index'))?>">
+								<i class="icon-calendar"></i> <?=__('Events')?>
 							</a>
 						</li>
 						<li>
