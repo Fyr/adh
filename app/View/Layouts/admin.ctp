@@ -55,6 +55,7 @@
 	echo $this->fetch('css');
 ?>
 <style>
+	.page-content-wrapper .page-content {margin-left: 0;}
 	.pagination .prev.disabled, .pagination .next.disabled { display: none; }
 	.table.dataTable p {margin: 0 0 0.13em 0;}
 	.rubl {font-family: 'PT Sans'}
@@ -76,7 +77,7 @@
 <!-- BEGIN CONTAINER -->
 <div class="page-container">
 	<!-- BEGIN SIDEBAR -->
-	<?=$this->element('AdminUI/sidebar')?>
+	<?//$this->element('AdminUI/sidebar')?>
 	<!-- END SIDEBAR -->
 	<!-- BEGIN CONTENT -->
 	<div class="page-content-wrapper">
@@ -97,11 +98,7 @@
 <!-- BEGIN FOOTER -->
 <div class="page-footer">
 	<div class="page-footer-inner">
-		<?=__('Development')?>: <a href="http://kakadu.bz" target="_blank">Kakadu Dev</a>
-		<!--
-		2014 &copy; Metronic by keenthemes.
-		<a href="http://themeforest.net/item/metronic-responsive-admin-dashboard-template/4021469?ref=keenthemes" target="_blank">Purchase Metronic!</a>
-		-->
+		<!-- <?=__('Development')?>: <a href="http://kakadu.bz" target="_blank">Kakadu Dev</a> -->
 	</div>
 	<div class="scroll-to-top">
 		<i class="icon-arrow-up"></i>
