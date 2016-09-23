@@ -4,6 +4,13 @@ App::uses('Task', 'Model');
 class BkgServiceShell extends AppShell {
     public $uses = array('Task');
 
+    public function collectData() {
+        $id = $this->Task->add(0, 'CollectData');
+        $this->args[0] = $id;
+        $this->execTask();
+        $this->Task->close($id);
+    }
+
     public function execTask() {
         ignore_user_abort(true);
         set_time_limit(0);
@@ -14,7 +21,7 @@ class BkgServiceShell extends AppShell {
         $task = $this->Tasks->load($taskName);
         $task->id = $id;
         $task->user_id = $taskData['Task']['user_id'];
-        $task->params = unserialize($taskData['Task']['params']);
+        $task->params = ($taskData['Task']['params']) ? unserialize($taskData['Task']['params']) : null;
         try {
             $task->execute();
         } catch (Exception $e) {

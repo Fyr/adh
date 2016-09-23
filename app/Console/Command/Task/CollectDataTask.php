@@ -12,7 +12,6 @@ class CollectDataTask extends AppShell {
     public $uses = array('Settings', 'Task', 'Campaign', 'CampaignStats', 'PlugrushApi', 'PopadsApi', 'VoluumApi');
 
     public function execute() {
-        // $this->loadModel('Settings');
         $this->Settings->initData();
 
         $this->Task->setProgress($this->id, 0, 3); // 3 subtasks
@@ -25,32 +24,44 @@ class CollectDataTask extends AppShell {
             'to' => time() + DAY
         ));
 
-        $i = 1;
-        try {
-            $this->_processPlugrush();
+        $aSubtasks = array(
+            array('name' => 'PlugrushAPI', 'method' => '_processPlugrush'),
+            array('name' => 'PopAdsAPI', 'method' => '_processPopads'),
+            array('name' => 'VoluumAPI', 'method' => '_processVoluum')
+        );
+        foreach($aSubtasks as $i => $subtask) {
+            $subtask_id = $this->Task->add(0, $subtask['name'], null, $this->id);
+            $this->Task->setData($this->id, 'subtask_id', $subtask_id);
+            try {
+                $this->{$subtask['method']}($subtask_id);
+            } catch (Exception $e) {
+                $status = $this->Task->getStatus($this->id);
+                if ($status == Task::ABORT) {
+                    $this->Task->setStatus($subtask_id, Task::ABORTED);
+                    throw $e;
+                } else {
+                    $this->Task->setData($subtask_id, 'xdata', $e->getMessage());
+                    $this->Task->setStatus($subtask_id, Task::ERROR);
+                    $this->out(mb_convert_encoding($e->getMessage(), 'cp1251', 'utf8'));
+                }
+            }
             $this->Task->setProgress($this->id, ++$i);
-        } catch (Exception $e) {
+            $this->Task->saveStatus($this->id);
         }
 
-        try {
-            $this->_processPopads();
-            $this->Task->setProgress($this->id, ++$i);
-        } catch (Exception $e) {
-        }
-
-        try {
-            $this->_processVoluum();
-            $this->Task->setProgress($this->id, ++$i);
-        } catch (Exception $e) {
-        }
-
-        // $this->Task->setData($this->id, 'xdata', $total * 3);
         $this->Task->setStatus($this->id, Task::DONE);
     }
 
-    private function _processPlugrush() {
+    private function _processPlugrush($subtask_id) {
         $aData = $this->PlugrushApi->getCampaignList();
-        foreach($aData as $row) {
+        $this->Task->setProgress($subtask_id, 0, count($aData));
+        $this->Task->setStatus($subtask_id, Task::RUN);
+        foreach($aData as $i => $row) {
+            $status = $this->Task->getStatus($this->id);
+            if ($status == Task::ABORT) {
+                throw new Exception(__('Processing was aborted by user'));
+            }
+
             $campaign = $this->Campaign->findBySrcTypeAndSrcId(Campaign::TYPE_PLUGRUSH, $row['id']);
 
             $data = array();
@@ -76,12 +87,27 @@ class CollectDataTask extends AppShell {
 
             $this->Campaign->clear();
             $this->Campaign->save($data);
+
+            $this->Task->setProgress($subtask_id, $i + 1);
+
+            $_progress = $this->Task->getProgressInfo($subtask_id);
+            $progress = $this->Task->getProgressInfo($this->id);
+            $this->Task->setProgress($this->id, $progress['progress'] + $_progress['percent'] * 0.01);
         }
+
+        $this->Task->setStatus($subtask_id, Task::DONE);
     }
 
-    private function _processPopads() {
+    private function _processPopads($subtask_id) {
         $aData = $this->PopadsApi->getCampaignList();
-        foreach($aData as $row) {
+        $this->Task->setProgress($subtask_id, 0, count($aData));
+        $this->Task->setStatus($subtask_id, Task::RUN);
+        foreach($aData as $i => $row) {
+            $status = $this->Task->getStatus($this->id);
+            if ($status == Task::ABORT) {
+                throw new Exception(__('Processing was aborted by user'));
+            }
+
             $campaign = $this->Campaign->findBySrcTypeAndSrcId(Campaign::TYPE_POPADS, $row['id']);
 
             $data = array();
@@ -108,10 +134,19 @@ class CollectDataTask extends AppShell {
 
             $this->Campaign->clear();
             $this->Campaign->save($data);
+
+            $this->Task->setProgress($subtask_id, $i + 1);
+
+            $_progress = $this->Task->getProgressInfo($subtask_id);
+            $progress = $this->Task->getProgressInfo($this->id);
+            $this->Task->setProgress($this->id, $progress['progress'] + $_progress['percent'] * 0.01);
         }
+
+        $this->Task->setStatus($subtask_id, Task::DONE);
+
     }
 
-    private function _processVoluum() {
+    private function _processVoluum($subtask_id) {
         $aTrackerCampaigns = $this->VoluumApi->getTrackerCampaignList();
         $aTrkData = array(
             'plugrush' => array(),
@@ -129,7 +164,6 @@ class CollectDataTask extends AppShell {
             }
         }
         $aCampaigns = $this->Campaign->findAllBySrcTypeAndSrcUid(array_keys($aTrkData), $aUIDs);
-        unset($aUIDs);
         $aSrcData = array();
         // Получить массив кампаний-источников в разрезе src_id для связывания по трэкеру
         foreach($aCampaigns as $campaign) {
@@ -142,8 +176,18 @@ class CollectDataTask extends AppShell {
                 $aSrcData[$src_type][$uid][$src_id] = $campaign;
             }
         }
+
+        $this->Task->setProgress($subtask_id, 0, count($aUIDs));
+        $this->Task->setStatus($subtask_id, Task::RUN);
+
+        $i = 0;
         foreach($aTrkData as $src_type => $trkData) {
             foreach($trkData as $uid => $url) {
+                $status = $this->Task->getStatus($this->id);
+                if ($status == Task::ABORT) {
+                    throw new Exception(__('Processing was aborted by user'));
+                }
+
                 $stats = $this->VoluumApi->getCampaignDetailedList($url);
                 foreach($stats as $row) {
                     if ($campaign = Hash::get($aSrcData, $src_type.'.'.$uid.'.'.$row['src_id'])) {
@@ -177,7 +221,14 @@ class CollectDataTask extends AppShell {
                         $this->Campaign->save($data);
                     }
                 }
+
+                $this->Task->setProgress($subtask_id, ++$i);
+                $_progress = $this->Task->getProgressInfo($subtask_id);
+                $progress = $this->Task->getProgressInfo($this->id);
+                $this->Task->setProgress($this->id, $progress['progress'] + $_progress['percent'] * 0.01);
             }
         }
+
+        $this->Task->setStatus($subtask_id, Task::DONE);
     }
 }
