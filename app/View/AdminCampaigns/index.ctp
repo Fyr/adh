@@ -26,143 +26,56 @@
 	echo $this->element('AdminUI/breadcrumbs', compact('breadcrumbs'));
 	echo $this->Flash->render();
 
-	$columns = array(
-		'Campaign.created' => array(
-			'key' => 'Campaign.created',
-			'label' => 'Created',
-			'format' => 'string'
-		),
-		'Campaign.status' => array(
-			'key' => 'Campaign.status',
-			'label' => 'Status',
-			'format' => 'string'
-		),
-		'Campaign.title' => array(
-			'key' => 'Campaign.title',
-			'label' => 'Campaign',
-			'format' => 'text'
-		),
-		'Campaign.type' => array(
-			'key' => 'Campaign.type',
-			'label' => 'Type',
-			'format' => 'string'
-		),
-		'Campaign.funds' => array(
-			'key' => 'Campaign.funds',
-			'label' => 'Traffic Funds',
-			'format' => 'string'
-		),
-		'TrackerStats.funds' => array(
-			'key' => 'TrackerStats.funds',
-			'label' => 'Tracker Funds',
-			'format' => 'string'
-		),
-		'TrackerStats.cpv' => array(
-			'key' => 'TrackerStats.cpv',
-			'label' => 'CPV',
-			'format' => 'string'
-		),
-		'TrackerStats.ctr' => array(
-			'key' => 'TrackerStats.ctr',
-			'label' => 'CTR',
-			'format' => 'string'
-		),
-		'TrackerStats.roi' => array(
-			'key' => 'TrackerStats.roi',
-			'label' => 'ROI',
-			'format' => 'string'
-		),
-	);
 	$row_actions = false;// '../AdminCampaigns/_row_actions';
-	$pagination = false;
 	$checkboxes = true;
+	$columns = $this->PHTableGrid->getDefaultColumns('Campaign');
+	unset($columns['Campaign.src_type']);
+	unset($columns['Campaign.url']);
+	unset($columns['Campaign.active']);
+	unset($columns['Campaign.trk_data']);
 
-	foreach($rowset as &$row) {
-		$created_date = (isset($row['Campaign']['created'])) ? date('d.m.Y', strtotime($row['Campaign']['created'])) : '';
-		$created_time = (isset($row['Campaign']['created'])) ? date('H:i', strtotime($row['Campaign']['created'])) : '';
-		$row['Campaign']['created'] = implode('<br />', array(
-			$created_date,
-			$created_time,
-			'',
-			date('d.m.Y', strtotime($row['Tracker']['created'])),
-			date('H:i', strtotime($row['Tracker']['created'])),
-		));
+	$columns['Campaign.src_id']['label'] = 'ID';
+	$columns['Campaign.src_name']['label'] = 'Campaign name';
+	$columns['Campaign.src_visits']['label'] = 'LP Visits';
+	$columns['Campaign.trk_clicks']['label'] = 'LP Clicks';
+	$columns['Campaign.ctr']['label'] = 'CTR';
+	$columns['Campaign.cpv']['label'] = 'CPV';
+	$columns['Campaign.roi']['label'] = 'ROI';
+	$columns['Campaign.epv']['label'] = 'EPV';
 
-		$status = (isset($row['Campaign']['status'])) ? $row['Campaign']['status'] : '';
-		$traffic_percent = (isset($row['Campaign']['traffic_percent'])) ? ' ('.$row['Campaign']['traffic_percent'].'%)' : '';
-		$traffic_info = (isset($row['Campaign']['traffic_info'])) ? $row['Campaign']['traffic_info'] : '';
-		$row['Campaign']['status'] = implode('<br />', array(
-			$status.$traffic_percent,
-			$traffic_info
-		));
+	$rowset = $this->PHTableGrid->getDefaultRowset('Campaign');
+	foreach($rowset as &$_row) {
+		$row = $_row['Campaign'];
 
-		$icon = $this->Html->image('logo_'.$row['Tracker']['src_type'].'.png', array(
+		$src_type = Configure::read($row['src_type'].'.title');
+		$icon = $this->Html->image('logo_'.$row['src_type'].'.png', array(
 			'class' => 'logo-service',
-			'alt' => $row['Tracker']['src_title']
+			'alt' => $src_type,
+			'title' => $src_type
 		));
-		$title = '';
-		if (isset($row['Campaign']['id']) && isset($row['Campaign']['title'])) {
-			$title = $icon.' '.$row['Tracker']['src_title'].' - '.'#'.$row['Campaign']['id'].' '.$row['Campaign']['title'];
-		}
-		$url = '';
-		if (isset($row['Campaign']['url'])) {
-			$attrs = array('title' => $row['Campaign']['url']);
-			$url = (isset($row['Campaign']['url'])) ? $this->Html->link(substr($row['Campaign']['url'], 0, 80) . '...', $row['Campaign']['url'], $attrs) : '';
-		}
-		$row['Campaign']['title'] = implode('<br />', array(
-			$title,
-			$url,
-			'',
-			'Tracker: #'.$row['Tracker']['campaign_id'],
-			$row['Tracker']['campaign_name'],
-		));
+		$attrs = array('title' => $row['url']);
+		$_row['Campaign']['src_name'] = $icon.' '.$this->Html->link($row['src_name'], 'javascript:;', $attrs);
 
-		$type = (isset($row['Campaign']['type'])) ? $row['Campaign']['type'] : '';
-		$row['Campaign']['type'] = implode('<br />', array(
-			$type,
-			'',
-			'',
-			$row['Tracker']['redirect_type'],
-			$row['Tracker']['cost_model'],
-		));
+		$icon = ($row['trk_data']) ? '' : $this->Html->div('pull-right', $this->Html->image('attention-icon.png', array(
+			'class' => 'logo-service',
+			'alt' => 'No tracker data!',
+			'title' => 'No tracker data!'
+		)));
+		$class = ($row['active']) ? 'font-green-jungle' : 'font-red-thunderbird';
+		$_row['Campaign']['status'] = $this->Html->tag('span', $_row['Campaign']['status'], compact('class')).$icon;
 
-		$items = array();
-		if (isset($row['Campaign']['paid'])) {
-			$items[] = 'Paid: <b>'.$this->Price->format($row['Campaign']['paid']).'</b>';
+		foreach(array('bid', 'cost', 'revenue', 'cpv', 'epv') as $key) {
+			$_row['Campaign'][$key] = $this->Price->format($row[$key], 2);
 		}
-		if (isset($row['Campaign']['bid'])) {
-			$items[] = 'Bid: <b>'.$this->Price->format($row['Campaign']['bid']).'</b>';
-		}
-		if (isset($row['Campaign']['spent'])) {
-			$items[] = 'Spent: <b>'.$this->Price->format($row['Campaign']['spent']).'</b>';
-		}
-		$row['Campaign']['funds'] = implode('<br/>', $items);
 
-		$class = ($row['TrackerStats']['roi'] < 0) ? 'font-red-thunderbird' : 'font-green-jungle';
-		$row['TrackerStats']['funds'] = implode('<br/>', array(
-			'Conv.: <b>'.$row['TrackerStats']['conversion'].'</b>',
-			'Rev.: <b>'.$this->Price->format($row['TrackerStats']['revenue'], 2).'</b>',
-			'Cost: <b>'.$this->Price->format($row['TrackerStats']['cost'], 2).'</b>',
-			'Profit: '.$this->Html->tag('b', $this->Price->format($row['TrackerStats']['profit'], 2), compact('class'))
-		));
+		$_row['Campaign']['ctr'] = $_row['Campaign']['ctr'].'%';
 
-		$row['TrackerStats']['cpv'] = $this->Price->format($row['TrackerStats']['cpv']);
-		$row['TrackerStats']['ctr'] = ($row['TrackerStats']['ctr']) ? '~'.round($row['TrackerStats']['ctr'], 2).'%' : '0%';
+		$class = ($row['profit'] >= 0) ? 'font-green-jungle' : 'font-red-thunderbird';
+		$_row['Campaign']['profit'] = $this->Html->tag('span', $this->Price->format($row['profit'], 2), compact('class'));
 
-		$row['TrackerStats']['roi'] = $this->Html->tag('span', $row['TrackerStats']['roi'].'%', compact('class'));
-
-		// передаем через ID чекбокса все необходимые данные (ID трэкера, тип источника, ID источника)
-		if (isset($row['Campaign']['id'])) {
-			$row['Campaign']['id'] = implode(',', array(
-				$row['Tracker']['campaign_id'],
-				$row['Tracker']['src_type'],
-				$row['Campaign']['id']
-			));
-		} else {
-			$row['Campaign']['id'] = '';
-		}
+		$class = ($row['roi'] >= 0) ? 'font-green-jungle' : 'font-red-thunderbird';
+		$_row['Campaign']['roi'] = $this->Html->tag('span', $_row['Campaign']['roi'].'%', compact('class'));
 	}
-
 
 ?>
 <style>
@@ -209,23 +122,25 @@
 	$datesOptions = array_combine($datesOptions, $datesOptions);
 	echo $this->PHForm->input('datesType', array('options' => $datesOptions, 'class' => 'form-control', 'autocomplete' => 'off', 'onchange' => "$('#filterForm').submit();"));
 */
-	echo $this->PHForm->end();
+	echo $this->PHForm->end(); // 'columns', 'row_actions',
 ?>
 							</div>
 
 						</div>
 					</div>
 				</div>
-				<?=$this->PHTableGrid->render('Campaign', compact('columns', 'rowset', 'pagination', 'row_actions', 'checkboxes'))?>
+				<?=$this->PHTableGrid->render('Campaign', compact('checkboxes', 'columns', 'rowset'))?>
 			</div>
 <?
 	// echo $this->PHForm->create('Campaign');
+/*
 	$tabs = array(
 		'Graphs' => $this->element('../AdminCampaigns/_graphs'),
 		'Summary Report' => $this->element('../AdminCampaigns/_report'),
 		'Site Targeting' => $this->element('../AdminCampaigns/_domains')
 	);
 	echo $this->Html->div('tabbable-bordered', $this->element('AdminUI/tabs', compact('tabs')));
+*/
 	// echo $this->PHForm->end();
 ?>
 		</div>
@@ -260,7 +175,7 @@ $(function(){
 	});
 
 	timer = null;
-	updateCharts();
+	// updateCharts();
 
 	$('.dataTable th.checkboxes input[type=checkbox]').change(function(e){
 		e.stopPropagation();
