@@ -1,7 +1,6 @@
 <?php
 App::uses('AppController', 'Controller');
 App::uses('AdminController', 'Controller');
-App::uses('AdminContentController', 'Controller');
 class AdminCampaignGroupsController extends AdminController {
     public $name = 'AdminCampaignGroups';
     public $uses = array('CampaignGroup', 'Campaign');

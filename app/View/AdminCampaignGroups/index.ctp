@@ -19,14 +19,17 @@
 		foreach($ids as $id) {
 			$row = $aCampaigns[$id];
 			$attrs = array('title' => $row['url']);
+			$src_type = Configure::read($row['src_type'].'.title');
 			$icon = $this->Html->image('logo_'.$row['src_type'].'.png', array(
 				'class' => 'logo-service',
-				'alt' => $row['src_title']
+				'alt' => $src_type
 			));
-			$items[] = $this->Html->div('item', implode('<br />', array(
-				$icon.' '.$row['src_title'].' - '.'#'.$row['id'].' '.$row['title'],
+			$class = ($row['active']) ? 'font-green-jungle' : 'font-red-thunderbird';
+			$title = implode('<br />', array(
+				$icon.' '.$src_type.' #'.$row['src_id'].' '.$row['src_name'].' ('.$this->Html->tag('span', $row['status'], compact('class')).')',
 				$this->Html->link(substr($row['url'], 0, 80).'...', $row['url'], $attrs)
-			)));
+			));
+			$items[] = $this->Html->div('item', $title);
 		}
 
 		$_row['CampaignGroup']['campaign_ids'] = implode('', $items);
