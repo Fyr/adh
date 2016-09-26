@@ -83,8 +83,9 @@ class CollectDataTask extends AppShell {
             // $data['src_clicks'] = intval($row['traffic_received']);
             $data['cost'] = floatval($row['spent']);
             $data['src_data'] = serialize($row);
-            $data['trk_data'] = null;
-
+            if ($data['active']) {
+                $data['trk_data'] = null;
+            }
             $this->Campaign->clear();
             $this->Campaign->save($data);
 
@@ -131,6 +132,9 @@ class CollectDataTask extends AppShell {
             $data['cost'] = floatval($row['spent']);
             */
             $data['src_data'] = serialize($row);
+            if ($data['active']) {
+                $data['trk_data'] = null;
+            }
 
             $this->Campaign->clear();
             $this->Campaign->save($data);
