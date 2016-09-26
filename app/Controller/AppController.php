@@ -82,4 +82,16 @@ class AppController extends Controller {
 	protected function beforeRenderLayout() {
 	}
 
+	/**
+	 * Runs shell in background (do not wait until shell is completed)
+	 * @param $shell - shell name
+	 */
+	public function runBkg($method) {
+		if (TEST_ENV) {
+			fdebug("../Console/cake.bat {$method}\r\n", 'run.bat', false);
+		} else {
+			system("../Console/cake {$method} < /dev/null > task.log &");
+		}
+	}
+
 }

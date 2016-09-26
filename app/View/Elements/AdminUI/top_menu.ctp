@@ -63,6 +63,11 @@
 							</a>
 						</li>
 						<li>
+							<a href="<?=$this->Html->url(array('controller' => 'AdminTasks', 'action' => 'collectData'))?>">
+								<i class="fa fa-refresh"></i> <?=__('Update data')?>
+							</a>
+						</li>
+						<li>
 							<a href="<?=$this->Html->url(array('controller' => 'AdminTasks', 'action' => 'index'))?>">
 								<i class="icon-calendar"></i> <?=__('Events')?>
 							</a>
