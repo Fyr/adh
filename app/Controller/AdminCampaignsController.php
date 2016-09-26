@@ -3,7 +3,7 @@ App::uses('AppController', 'Controller');
 App::uses('AdminController', 'Controller');
 class AdminCampaignsController extends AdminController {
     public $name = 'AdminCampaigns';
-    public $uses = array('Campaign', 'VoluumApi', 'PlugRushApi', 'Settings', 'CampaignGroup', 'Task');
+    public $uses = array('Campaign', 'VoluumApi', 'PlugRushApi', 'Settings', 'CampaignGroup', 'CampaignStats');
     public $helpers = array('Price');
 
 /*
@@ -39,7 +39,15 @@ class AdminCampaignsController extends AdminController {
             }
         }
 
-        $this->PCTableGrid->paginate('Campaign');
+        $aRowset = $this->PCTableGrid->paginate('Campaign');
+        $ids = Hash::extract($aRowset, '{n}.Campaign.id');
+
+        $fields = array('id', 'created', 'campaign_id', 'src_visits', 'roi');
+        $conditions = array('campaign_id' => $ids, 'created > ' => date('Y-m-d H:i:s', time() - DAY * 7));
+        $order = 'created';
+        $aStats = $this->CampaignStats->find('all', compact('fields', 'conditions', 'order'));
+        $aStats = Hash::combine($aStats, '{n}.CampaignStats.id', '{n}.CampaignStats', '{n}.CampaignStats.campaign_id');
+        $this->set('aStats', $aStats);
 
         $options = array('Today', 'Yesterday', 'Last 7 days', 'Last 14 days', 'Last 30 days');
         $this->set('datesOptions', $options);
@@ -56,9 +64,4 @@ class AdminCampaignsController extends AdminController {
         $this->set(compact('campaign'));
     }
 
-    public function run() {
-        $this->autoRender = false;
-        $id = $this->Task->add(0, 'ProductParser');
-        $this->Task->runBkg($id);
-    }
 }

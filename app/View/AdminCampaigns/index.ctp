@@ -16,7 +16,7 @@
 		'/Table/js/table_grid',
 		'domains-grid'
 	), array('inline' => false));
-	// echo $this->element('Table.js_table_grid'); // нужен для table_grid
+	// echo $this->element('Table.js_table_grid'); // РЅСѓР¶РµРЅ РґР»СЏ table_grid
 
 	$title = __('Campaigns list');
 	$breadcrumbs = array(
@@ -42,6 +42,11 @@
 	$columns['Campaign.cpv']['label'] = 'CPV';
 	$columns['Campaign.roi']['label'] = 'ROI';
 	$columns['Campaign.epv']['label'] = 'EPV';
+	$columns['Campaign.trend'] = array(
+		'key' => 'Campaign.trend',
+		'label' => 'Trend',
+		'format' => 'string'
+	);
 
 	$rowset = $this->PHTableGrid->getDefaultRowset('Campaign');
 	foreach($rowset as &$_row) {
@@ -75,6 +80,8 @@
 
 		$class = ($row['roi'] >= 0) ? 'font-green-jungle' : 'font-red-thunderbird';
 		$_row['Campaign']['roi'] = $this->Html->tag('span', $_row['Campaign']['roi'].'%', compact('class'));
+
+		$_row['Campaign']['trend'] = $this->Html->tag('span', '', array('id' => 'trend-'.$row['id'], 'class' => 'trendChart'));
 	}
 
 ?>
@@ -86,7 +93,8 @@
 	.daterangepicker td.end-date {
 		border-radius: 0 4px 4px 0 !important;
 	}
-	.dataTable tbody td:nth-child(2), td:nth-child(3), td:nth-child(5), td:nth-child(6), td:nth-child(7) { white-space: nowrap; }
+	/* .dataTable tbody td:nth-child(2), td:nth-child(3), td:nth-child(5), td:nth-child(6), td:nth-child(7) { white-space: nowrap; } */
+	.dataTable tbody td:nth-child(16) { padding: 0; }
 	.table > thead > tr > th.grid-x-header {border-bottom: 1px solid #e7ecf1; text-align: center;}
 	.filter-list-header {font-weight: bold; margin: 10px 0 5px 0;}
 	.filter-list-item {margin: 3px 0;}
@@ -146,6 +154,106 @@
 		</div>
 	</div>
 </div>
+<script>
+function renderTrendCharts(e, data) {
+	$(e).highcharts({
+		chart: {
+			//zoomType: 'xy',
+			width: 200,
+			height: 80
+		},
+		title: false,
+		xAxis: [{
+			categories: data.categories,
+			crosshair: true,
+			labels: {
+				enabled: false
+			}
+		}],
+		yAxis: [{ // Primary yAxis
+			title: {
+				text: false,
+				style: {
+					color: Highcharts.getOptions().colors[0]
+				}
+			},
+			labels: {
+				reserveSpace: false,
+				x: -5,
+				style: {
+					color: Highcharts.getOptions().colors[0]
+				}
+			}
+		}, { // Secondary yAxis
+			title: {
+				text: false,
+				style: {
+					color: Highcharts.getOptions().colors[1]
+				}
+			},
+			labels: {
+				format: '{value}%',
+				x: 3,
+				reserveSpace: false,
+				style: {
+					color: Highcharts.getOptions().colors[1]
+				}
+			},
+			min: -100,
+			max: 100,
+			opposite: true
+		}],
+		tooltip: {
+			shared: true
+		},
+		legend: {
+			enabled: false,
+		},
+		series: [{
+			name: 'Visits',
+			type: 'column',
+			yAxis: 0,
+			data: data.visits,
+		}, {
+			name: 'ROI, %',
+			type: 'spline',
+			yAxis: 1,
+			data: data.roi,
+			tooltip: {
+				valueSuffix: '%'
+			}
+		}],
+		credits: {
+			enabled: false
+		}
+	});
+}
+
+var data;
+$(function() {
+<?
+	foreach($aStats as $campaign_id => $stats) {
+		$data = array(
+			'categories' => array(),
+			'visits' => array(),
+			'roi' => array()
+		);
+		foreach($stats as $row) {
+			$data['categories'][] = date('d.m H:i', strtotime($row['created']));
+			$data['visits'][] = intval($row['src_visits']);
+			$data['roi'][] = intval($row['roi']);
+		}
+?>
+	data = <?=json_encode($data)?>;
+	renderTrendCharts('#trend-<?=$campaign_id?>', data);
+<?
+	}
+?>
+
+});
+</script>
+
+
 <script>
 var timer = null;
 $(function(){
