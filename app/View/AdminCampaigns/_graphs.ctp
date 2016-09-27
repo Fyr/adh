@@ -12,8 +12,8 @@ function updateCharts() {
             $('#ajax-loader').hide();
             if (checkJson(response)) {
                 $('#charts').html('<div style="border: 1px solid #e5e5e5; height: 400px;"></div>');
-                renderCharts(getChartsData(response.data.traffic));
-                renderReports(response);
+                renderCharts(getChartsData(response.data.stats));
+                // renderReports(response);
 
             }
         });
@@ -30,28 +30,49 @@ function renderReports(response) {
 }
 
 function getChartsData(stats) {
-    data = {};
+    var data = {};
     data.xAxis = [];
-    data.amount = [];
-    data.raws = [];
-    data.uniques = [];
+
+    data.visits = [];
+    data.clicks = [];
+    data.conversion = [];
+
+    data.cost = [];
+    data.revenue = [];
+    data.profit = [];
+
+    data.ctr = [];
+    data.roi = [];
+    data.epv = [];
+
     data.startDate = '';
     data.endDate = '';
     for(var date in stats) {
         if (!data.startDate) {
-            data.startDate = date;
+            data.startDate = moment(date);
         }
-        data.endDate = date;
+        data.endDate = moment(date);
 
         data.xAxis.push(date);
-        data.amount.push(stats[date].amount);
-        data.raws.push(stats[date].raws);
-        data.uniques.push(stats[date].uniques);
+
+        data.visits.push(parseInt(stats[date].src_visits));
+        data.clicks.push(parseInt(stats[date].trk_clicks));
+        data.conversion.push(parseFloat(stats[date].conversion));
+
+        data.cost.push(parseFloat(stats[date].cost));
+        data.revenue.push(parseFloat(stats[date].revenue));
+        data.profit.push(parseFloat(stats[date].profit));
+
+        data.ctr.push(parseInt(stats[date].ctr));
+        data.roi.push(parseInt(stats[date].roi));
+
+        data.epv.push(parseFloat(stats[date].epv));
     }
     return data;
 }
 
 function renderCharts(data) {
+    console.log(data);
     var options = {
         chart: {
             zoomType: 'xy'
@@ -61,36 +82,73 @@ function renderCharts(data) {
             x: -20 //center
         },
         subtitle: {
-            text: data.startDate + ' - ' + data.endDate,
+            text: 'Text',// data.startDate + ' - ' + data.endDate,
             x: -20
         },
         xAxis: {
             categories: data.xAxis
         },
-        yAxis: [
-            {
-                title: {
-                    text: 'Visitors',
-                },
-                min: 0
+        yAxis: [{
+            title: {
+                text: 'Visitors',
+                style: {
+                    color: Highcharts.getOptions().colors[0]
+                }
             },
-            {
-                title: {
-                    text: 'Cost',
-                    style: {
-                        color: Highcharts.getOptions().colors[0]
-                    }
-                },
-                min: 0,
-                opposite: true,
-                labels: {
-                    format: '${value}',
-                    style: {
-                        color: Highcharts.getOptions().colors[0]
-                    }
-                },
+            min: 0
+        }, {
+            title: {
+                text: 'Clicks/Conversion',
+                style: {
+                    color: Highcharts.getOptions().colors[1]
+                }
+            },
+            min: 0
+        }, {
+            title: {
+                text: 'CTR/ROI',
+                style: {
+                    color: Highcharts.getOptions().colors[2]
+                }
+            },
+            min: -100,
+            max: 100,
+            opposite: true,
+            labels: {
+                format: '{value}%',
+                style: {
+                    color: Highcharts.getOptions().colors[2]
+                }
+            },
+        }, {
+            title: {
+                text: 'Cost/Revenue/Profit',
+                style: {
+                    color: Highcharts.getOptions().colors[3]
+                }
+            },
+            opposite: true,
+            labels: {
+                format: '${value}',
+                style: {
+                    color: Highcharts.getOptions().colors[3]
+                }
+            },
+        }, {
+            title: {
+                text: 'EPV',
+                style: {
+                    color: Highcharts.getOptions().colors[4]
+                }
+            },
+            opposite: true,
+            labels: {
+                format: '${value}',
+                style: {
+                    color: Highcharts.getOptions().colors[4]
+                }
             }
-        ],
+        }],
         tooltip: {
             shared: true
         },
@@ -100,30 +158,66 @@ function renderCharts(data) {
             verticalAlign: 'top',
             borderWidth: 0,
         },
-        series: [
-            {
-                name: 'Cost',
-                data: data.amount,
-                yAxis: 1,
-                type: 'column',
-                tooltip: {
-                    valuePrefix: '$'
-                }
-            },
-            {
-                name: 'Uniques',
-                data: data.uniques,
-                yAxis: 0,
-                type: 'spline'
-            },
-            {
-                name: 'Raws',
-                data: data.raws,
-                yAxis: 0,
-                type: 'spline',
-
+        series: [{
+            name: 'Visits',
+            data: data.visits,
+            yAxis: 0,
+        }, {
+            name: 'Clicks',
+            data: data.clicks,
+            yAxis: 1,
+        }, {
+            name: 'Conversion',
+            data: data.conversion,
+            yAxis: 1,
+        }, {
+            name: 'CTR',
+            data: data.ctr,
+            yAxis: 2,
+            type: 'spline',
+            tooltip: {
+                valueSuffix: '%'
             }
-        ],
+        }, {
+            name: 'ROI',
+            data: data.roi,
+            yAxis: 2,
+            type: 'spline',
+            tooltip: {
+                valueSuffix: '%'
+            }
+        }, {
+            name: 'Cost',
+            data: data.cost,
+            yAxis: 3,
+            type: 'column',
+            tooltip: {
+                valuePrefix: '$'
+            }
+        }, {
+            name: 'Revenue',
+            data: data.revenue,
+            yAxis: 3,
+            type: 'column',
+            tooltip: {
+                valuePrefix: '$'
+            }
+        }, {
+            name: 'Profit',
+            data: data.profit,
+            yAxis: 3,
+            type: 'column',
+            tooltip: {
+                valuePrefix: '$'
+            }
+        }, {
+            name: 'EPV',
+            data: data.epv,
+            yAxis: 4,
+            tooltip: {
+                valuePrefix: '$'
+            }
+        }],
         credits: {
             enabled: false
         },

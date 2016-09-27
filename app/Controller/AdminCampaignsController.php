@@ -6,21 +6,13 @@ class AdminCampaignsController extends AdminController {
     public $uses = array('Campaign', 'VoluumApi', 'PlugRushApi', 'Settings', 'CampaignGroup', 'CampaignStats');
     public $helpers = array('Price');
 
-/*
-    public $paginate = array(
-        'conditions' => array('User.id <> ' => 1),
-        'fields' => array('created', 'username', 'email', 'key', 'balance', 'active'),
-        'order' => array('created' => 'desc'),
-        'limit' => 20
-    );
-*/
     public $paginate = array(
         'fields' => array(
             'src_type', 'src_id', 'src_name', 'url', 'active', 'status', 'bid', 'src_visits', 'trk_clicks',
             'conversion', 'revenue', 'cost', 'profit', 'cpv', 'ctr', 'roi', 'epv', 'trk_data'
         ),
         'order' => array('created' => 'desc'),
-        'limit' => 20
+        'limit' => 10
     );
 
     public function index($group_id = null) {
@@ -30,7 +22,7 @@ class AdminCampaignsController extends AdminController {
         if (!$this->request->data('Filter.to')) {
             $this->request->data('Filter.to', date('Y-m-d'));
         }
-        $this->Settings->adjustDateRange($this->request->data('Filter.from'), $this->request->data('Filter.to'));
+        // $this->Settings->adjustDateRange($this->request->data('Filter.from'), $this->request->data('Filter.to'));
         if ($group_id) {
             $group = $this->CampaignGroup->findById($group_id);
             if ($group) {
@@ -42,12 +34,7 @@ class AdminCampaignsController extends AdminController {
         $aRowset = $this->PCTableGrid->paginate('Campaign');
         $ids = Hash::extract($aRowset, '{n}.Campaign.id');
 
-        $fields = array('id', 'created', 'campaign_id', 'src_visits', 'roi');
-        $conditions = array('campaign_id' => $ids, 'created > ' => date('Y-m-d H:i:s', time() - DAY * 7));
-        $order = 'created';
-        $aStats = $this->CampaignStats->find('all', compact('fields', 'conditions', 'order'));
-        $aStats = Hash::combine($aStats, '{n}.CampaignStats.id', '{n}.CampaignStats', '{n}.CampaignStats.campaign_id');
-        $this->set('aStats', $aStats);
+        $this->set('aStats', $this->CampaignStats->getStats($ids, time() - DAY * 7));
 
         $options = array('Today', 'Yesterday', 'Last 7 days', 'Last 14 days', 'Last 30 days');
         $this->set('datesOptions', $options);

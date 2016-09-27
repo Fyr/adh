@@ -114,9 +114,10 @@ class VoluumApi extends AppModel {
 	}
 
 	public function getTrackerCampaignList() {
+		// забираем ВСЕ кампании
 		$from = $this->_parseDatetime(strtotime('2016-09-01 00:00:00'));
-		$to = $this->_parseDatetime(Configure::read('date.to'));
-		// судя по моим тестам список кампаний не зависит от передаваемой даты
+		$to = $this->_parseDatetime(time() + DAY);
+		// ? судя по моим тестам список кампаний не зависит от передаваемой даты
 		$data = "groupBy=campaign&from={$from}&to={$to}";
 		$aData = $this->sendRequest($data);
 		return $aData['rows'];

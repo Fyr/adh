@@ -140,16 +140,14 @@
 				<?=$this->PHTableGrid->render('Campaign', compact('checkboxes', 'columns', 'rowset'))?>
 			</div>
 <?
-	// echo $this->PHForm->create('Campaign');
-/*
+	echo $this->PHForm->create('Campaign');
 	$tabs = array(
 		'Graphs' => $this->element('../AdminCampaigns/_graphs'),
 		'Summary Report' => $this->element('../AdminCampaigns/_report'),
 		'Site Targeting' => $this->element('../AdminCampaigns/_domains')
 	);
 	echo $this->Html->div('tabbable-bordered', $this->element('AdminUI/tabs', compact('tabs')));
-*/
-	// echo $this->PHForm->end();
+	echo $this->PHForm->end();
 ?>
 		</div>
 	</div>
@@ -262,7 +260,7 @@ $(function(){
 	function showDateRange(start, end) {
 		$('#FilterFrom').val(start.format('YYYY-MM-DD'));
 		$('#FilterTo').val(end.format('YYYY-MM-DD'));
-		$('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+		$('#reportrange span').html(start.format('MMM D, YYYY') + ' - ' + end.format('MMM D, YYYY'));
 	}
 	showDateRange(moment(startDate), moment(endDate));
 	$('#reportrange').daterangepicker({
@@ -283,7 +281,7 @@ $(function(){
 	});
 
 	timer = null;
-	// updateCharts();
+	updateCharts();
 
 	$('.dataTable th.checkboxes input[type=checkbox]').change(function(e){
 		e.stopPropagation();
@@ -299,7 +297,7 @@ $(function(){
 		clearTimeout(timer);
 		timer = setTimeout(function(){
 			updateCharts();
-		}, 700);
+		}, 800);
 	});
 
 	$('.dataTable td.checkboxes input[type=checkbox]').change(function(e){

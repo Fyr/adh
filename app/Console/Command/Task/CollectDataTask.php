@@ -211,9 +211,9 @@ class CollectDataTask extends AppShell {
                             'revenue' => floatval($row['revenue']), // $0.00
                             'profit' => $profit, // $0.00
                             'cpv' => $campaign['cost'] / $campaign['src_visits'], // $0.0000
-                            'ctr' => round(intval($row['clicks']) / $campaign['src_visits'] * 100), // 0.00%
-                            'roi' => round($profit / $campaign['cost'] * 100),
-                            'epv' => floatval($row['revenue']) / $campaign['src_visits'],
+                            'ctr' => ($campaign['src_visits']) ? round(intval($row['clicks']) / $campaign['src_visits'] * 100) : 0, // 0.00%
+                            'roi' => ($campaign['cost']) ? round($profit / $campaign['cost'] * 100) : 0,
+                            'epv' => ($campaign['src_visits']) ? floatval($row['revenue']) / $campaign['src_visits'] : 0,
                             'trk_data' => serialize($row)
                         );
 
