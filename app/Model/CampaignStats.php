@@ -94,11 +94,25 @@ class CampaignStats extends AppModel {
             }
         }
         foreach($aTotal as $date => $stats) {
-            $aTotal[$date]['cpv'] = ($stats['src_visits']) ? $stats['cost'] / $stats['src_visits'] : 0; // $0.0000
+            $aTotal[$date]['cpv'] = ($stats['src_visits']) ? round($stats['cost'] / $stats['src_visits'], 4) : 0; // $0.0000
             $aTotal[$date]['ctr'] = ($stats['src_visits']) ? round($stats['trk_clicks'] / $stats['src_visits'] * 100) : 0; // 0.00%
             $aTotal[$date]['roi'] = ($stats['cost']) ? round($stats['profit'] / $stats['cost'] * 100) : 0;
             $aTotal[$date]['epv'] = ($stats['src_visits']) ? round($stats['revenue'] / $stats['src_visits'], 4) : 0;
         }
-        return $aTotal;
+        $aTotalDates = array();
+        foreach($aTotal as $date => $stats) {
+            list($_date, $hour) = explode(' ', $date);
+            if (!isset($aTotalDates[$_date]) && $hour == '23:00') { // берем данные на конец дня
+                $aTotalDates[$_date] = array();
+                foreach($fields as $key) { // обнуляем массив
+                    $aTotalDates[$_date][$key] = 0;
+                }
+                foreach($fields as $key) {
+                    $aTotalDates[$_date][$key] = $stats[$key]; // не суммируем т.к. статистика уже накопительная!!!
+                }
+            }
+        }
+
+        return array('byHours' => $aTotal, 'byDates' => $aTotalDates);
     }
 }

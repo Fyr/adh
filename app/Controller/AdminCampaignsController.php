@@ -3,7 +3,7 @@ App::uses('AppController', 'Controller');
 App::uses('AdminController', 'Controller');
 class AdminCampaignsController extends AdminController {
     public $name = 'AdminCampaigns';
-    public $uses = array('Campaign', 'VoluumApi', 'PlugRushApi', 'Settings', 'CampaignGroup', 'CampaignStats');
+    public $uses = array('Campaign', 'VoluumApi', 'PlugRushApi', 'Settings', 'CampaignGroup', 'CampaignStats', 'PlugrushApi');
     public $helpers = array('Price');
 
     public $paginate = array(
@@ -38,6 +38,18 @@ class AdminCampaignsController extends AdminController {
 
         $options = array('Today', 'Yesterday', 'Last 7 days', 'Last 14 days', 'Last 30 days');
         $this->set('datesOptions', $options);
+
+        /*
+        $ids = Hash::extract($aRowset, '{n}.Campaign.src_id');
+        foreach ($ids as $id) {
+            try {
+                $aData = $this->PlugrushApi->getDomainStats($id);
+                fdebug($aData);
+            } catch (Exception $e) {
+                fdebug($id.':'.$e->getMessage() . "\r\n", 'error.log');
+            }
+        }
+        */
     }
 
     public function view($id) {

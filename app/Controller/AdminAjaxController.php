@@ -15,7 +15,6 @@ class AdminAjaxController extends PAjaxController {
 			}
 			$this->CampaignStats = $this->loadModel('CampaignStats');
 			$stats = $this->CampaignStats->getSummaryStats($ids, $this->request->data('from'), $this->request->data('to'));
-			// $stats = $this->CampaignStats->getStats($ids, $this->request->data('from'), $this->request->data('to'));
 			$this->setResponse(compact('stats'));
 
 		} catch (Exception $e) {

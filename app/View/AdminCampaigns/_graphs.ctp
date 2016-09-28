@@ -12,8 +12,8 @@ function updateCharts() {
             $('#ajax-loader').hide();
             if (checkJson(response)) {
                 $('#charts').html('<div style="border: 1px solid #e5e5e5; height: 400px;"></div>');
-                renderCharts(getChartsData(response.data.stats));
-                // renderReports(response);
+                renderCharts(getChartsData(response.data.stats.byHours));
+                renderReports(response);
 
             }
         });
@@ -23,9 +23,9 @@ function updateCharts() {
 }
 
 function renderReports(response) {
-    $('#summary-report').html(Tmpl('summary-report').render(response));
-    domainsGrid.setData(response.data.domains);
-    domainsGrid.render();
+    $('#summary-report').html(Tmpl('summary-report').render(response.data.stats.byDates));
+    //domainsGrid.setData(response.data.domains);
+    //domainsGrid.render();
     // domainsGrid.initFilter();
 }
 
@@ -72,7 +72,6 @@ function getChartsData(stats) {
 }
 
 function renderCharts(data) {
-    console.log(data);
     var options = {
         chart: {
             zoomType: 'xy'
@@ -82,7 +81,7 @@ function renderCharts(data) {
             x: -20 //center
         },
         subtitle: {
-            text: 'Text',// data.startDate + ' - ' + data.endDate,
+            text: data.startDate.format('MMM D, YYYY') + ' - ' + data.endDate.format('MMM D, YYYY'),
             x: -20
         },
         xAxis: {
@@ -138,14 +137,14 @@ function renderCharts(data) {
             title: {
                 text: 'EPV',
                 style: {
-                    color: Highcharts.getOptions().colors[4]
+                    color: Highcharts.getOptions().colors[8]
                 }
             },
             opposite: true,
             labels: {
                 format: '${value}',
                 style: {
-                    color: Highcharts.getOptions().colors[4]
+                    color: Highcharts.getOptions().colors[8]
                 }
             }
         }],
