@@ -1,8 +1,6 @@
 <?
 App::uses('AppModel', 'Model');
-App::uses('PlugrushApi', 'Model');
-App::uses('PopadsApi', 'Model');
-App::uses('VoluumApi', 'Model');
+App::uses('CampaignDomain', 'Model');
 class Campaign extends AppModel {
 
 	const TYPE_PLUGRUSH = 'plugrush';
@@ -21,11 +19,18 @@ class Campaign extends AppModel {
 		return $aResult;
 	}
 
+	public function getDomainIds($id) {
+		$this->CampaignDomain = $this->loadModel('CampaignDomain');
+		$aData = $this->CampaignDomain->findAllByCampaignId($id);
+		return Hash::extract($aData, '{n}.CampaignDomain.domain_id');
+	}
+
 	/**
 	 * Get info about traffic source (visits, clicks, cost etc)
 	 * @param mixed $aID - assoc array('trk_id', 'src_type', 'src_id')
 	 * @return array
 	 */
+	/*
 	public function getTrafficStats($aID) {
 		$this->VoluumApi = $this->loadModel('VoluumApi');
 		$this->PlugrushApi = $this->loadModel('PlugrushApi');
@@ -137,5 +142,6 @@ class Campaign extends AppModel {
 		}
 		return array_values($aDomains);
 	}
+	*/
 }
 

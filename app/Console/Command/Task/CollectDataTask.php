@@ -1,24 +1,29 @@
 <?php
 App::uses('Shell', 'Console');
 App::uses('AppShell', 'Console/Command');
+
 App::uses('Settings', 'Model');
 App::uses('Task', 'Model');
 App::uses('Campaign', 'Model');
 App::uses('CampaignStats', 'Model');
+App::uses('Domain', 'Model');
+App::uses('CampaignDomain', 'Model');
+App::uses('DomainStats', 'Model');
+
 App::uses('PlugrushApi', 'Model');
 App::uses('PopadsApi', 'Model');
 App::uses('VoluumApi', 'Model');
 class CollectDataTask extends AppShell {
-    public $uses = array('Settings', 'Task', 'Campaign', 'CampaignStats', 'PlugrushApi', 'PopadsApi', 'VoluumApi');
+    public $uses = array(
+        'Settings', 'Task', 'Campaign', 'CampaignStats', 'Domain', 'CampaignDomain', 'DomainStats',
+        'PlugrushApi', 'PopadsApi', 'VoluumApi'
+    );
 
     public function execute() {
         $this->Settings->initData();
 
-        $this->Task->setProgress($this->id, 0, 3); // 3 subtasks
-        $this->Task->setStatus($this->id, Task::RUN);
-
-        // ò.ê. ìû ïîëó÷àåì äàííûå â ğåàë-òàéìå íî â çàâ-òè îò òàéìçîíû
-        // íàì âàæíî ïğîñòî ïîëó÷àòü äàííûå çà äåíü
+        // Ñ‚.Ğº. Ğ¼Ñ‹ Ğ¿Ğ¾Ğ»ÑƒÑ‡Ğ°ĞµĞ¼ Ğ´Ğ°Ğ½Ğ½Ñ‹Ğµ Ğ² Ñ€ĞµĞ°Ğ»-Ñ‚Ğ°Ğ¹Ğ¼Ğµ Ğ½Ğ¾ Ğ² Ğ·Ğ°Ğ²-Ñ‚Ğ¸ Ğ¾Ñ‚ Ñ‚Ğ°Ğ¹Ğ¼Ğ·Ğ¾Ğ½Ñ‹
+        // Ğ½Ğ°Ğ¼ Ğ²Ğ°Ğ¶Ğ½Ğ¾ Ğ¿Ñ€Ğ¾ÑÑ‚Ğ¾ Ğ¿Ğ¾Ğ»ÑƒÑ‡Ğ°Ñ‚ÑŒ Ğ´Ğ°Ğ½Ğ½Ñ‹Ğµ Ğ·Ğ° Ğ´ĞµĞ½ÑŒ
         Configure::write('date', array(
             'from' => time() - DAY,
             'to' => time() + DAY
@@ -27,8 +32,11 @@ class CollectDataTask extends AppShell {
         $aSubtasks = array(
             array('name' => 'PlugrushAPI', 'method' => '_processPlugrush'),
             array('name' => 'PopAdsAPI', 'method' => '_processPopads'),
-            array('name' => 'VoluumAPI', 'method' => '_processVoluum')
+            array('name' => 'VoluumAPI', 'method' => '_processVoluum'),
+            array('name' => 'PlugrushDomains', 'method' => '_processPlugrushDomains')
         );
+        $this->Task->setProgress($this->id, 0, count($aSubtasks));
+        $this->Task->setStatus($this->id, Task::RUN);
         foreach($aSubtasks as $i => $subtask) {
             $subtask_id = $this->Task->add(0, $subtask['name'], null, $this->id);
             $this->Task->setData($this->id, 'subtask_id', $subtask_id);
@@ -66,7 +74,7 @@ class CollectDataTask extends AppShell {
 
             $data = array();
             if ($campaign) {
-                $data['id'] = $campaign['Campaign']['id']; // îáíîâëÿåì êàìïàíèş
+                $data['id'] = $campaign['Campaign']['id']; // Ğ¾Ğ±Ğ½Ğ¾Ğ²Ğ»ÑĞµĞ¼ ĞºĞ°Ğ¼Ğ¿Ğ°Ğ½Ğ¸Ñ
             } else {
                 $data = array(
                     'src_type' => Campaign::TYPE_PLUGRUSH,
@@ -113,7 +121,7 @@ class CollectDataTask extends AppShell {
 
             $data = array();
             if ($campaign) {
-                $data['id'] = $campaign['Campaign']['id']; // îáíîâëÿåì êàìïàíèş
+                $data['id'] = $campaign['Campaign']['id']; // Ğ¾Ğ±Ğ½Ğ¾Ğ²Ğ»ÑĞµĞ¼ ĞºĞ°Ğ¼Ğ¿Ğ°Ğ½Ğ¸Ñ
             } else {
                 $data = array(
                     'src_type' => Campaign::TYPE_POPADS,
@@ -159,9 +167,9 @@ class CollectDataTask extends AppShell {
         $aUIDs = array();
         foreach($aTrackerCampaigns as $data) {
             $src_type = strtolower($data['trafficSource']);
-            if (in_array($src_type, array_keys($aTrkData))) { // ïîêà ìîæåì îáğàáîòàòü òîëüêî PlugRush, PopAds
+            if (in_array($src_type, array_keys($aTrkData))) { // Ğ¿Ğ¾ĞºĞ° Ğ¼Ğ¾Ğ¶ĞµĞ¼ Ğ¾Ğ±Ñ€Ğ°Ğ±Ğ¾Ñ‚Ğ°Ñ‚ÑŒ Ñ‚Ğ¾Ğ»ÑŒĞºĞ¾ PlugRush, PopAds
 
-                // äëÿ ñòàòèñòèêè ïî êàìïàíèè íóæåí òîëüêî URL è campaignId (ıòî è åñòü UID)
+                // Ğ´Ğ»Ñ ÑÑ‚Ğ°Ñ‚Ğ¸ÑÑ‚Ğ¸ĞºĞ¸ Ğ¿Ğ¾ ĞºĞ°Ğ¼Ğ¿Ğ°Ğ½Ğ¸Ğ¸ Ğ½ÑƒĞ¶ĞµĞ½ Ñ‚Ğ¾Ğ»ÑŒĞºĞ¾ URL Ğ¸ campaignId (ÑÑ‚Ğ¾ Ğ¸ ĞµÑÑ‚ÑŒ UID)
                 $uid = $this->VoluumApi->getCampaignUID($data['campaignUrl']);
                 $aTrkData[$src_type][$uid] = $data['campaignUrl'];
                 $aUIDs[] = $uid;
@@ -169,14 +177,14 @@ class CollectDataTask extends AppShell {
         }
         $aCampaigns = $this->Campaign->findAllBySrcTypeAndSrcUid(array_keys($aTrkData), $aUIDs);
         $aSrcData = array();
-        // Ïîëó÷èòü ìàññèâ êàìïàíèé-èñòî÷íèêîâ â ğàçğåçå src_id äëÿ ñâÿçûâàíèÿ ïî òğıêåğó
+        // ĞŸĞ¾Ğ»ÑƒÑ‡Ğ¸Ñ‚ÑŒ Ğ¼Ğ°ÑÑĞ¸Ğ² ĞºĞ°Ğ¼Ğ¿Ğ°Ğ½Ğ¸Ğ¹-Ğ¸ÑÑ‚Ğ¾Ñ‡Ğ½Ğ¸ĞºĞ¾Ğ² Ğ² Ñ€Ğ°Ğ·Ñ€ĞµĞ·Ğµ src_id Ğ´Ğ»Ñ ÑĞ²ÑĞ·Ñ‹Ğ²Ğ°Ğ½Ğ¸Ñ Ğ¿Ğ¾ Ñ‚Ñ€ÑĞºĞµÑ€Ñƒ
         foreach($aCampaigns as $campaign) {
             $campaign = $campaign['Campaign'];
             $src_type = $campaign['src_type'];
             $uid = $campaign['src_uid'];
             $src_id = $campaign['src_id'];
-            if ($url = Hash::get($aTrkData, $src_type.'.'.$uid)) { // êàìïàíèÿ-èñòî÷íèê ñîîòâ-åò ïî òèïó è UID
-                // â òğıêåğå åé ìîæåò ñîîòâ-òü íåñêîëüêî êàìïàíèé èñòî÷íèêîâ
+            if ($url = Hash::get($aTrkData, $src_type.'.'.$uid)) { // ĞºĞ°Ğ¼Ğ¿Ğ°Ğ½Ğ¸Ñ-Ğ¸ÑÑ‚Ğ¾Ñ‡Ğ½Ğ¸Ğº ÑĞ¾Ğ¾Ñ‚Ğ²-ĞµÑ‚ Ğ¿Ğ¾ Ñ‚Ğ¸Ğ¿Ñƒ Ğ¸ UID
+                // Ğ² Ñ‚Ñ€ÑĞºĞµÑ€Ğµ ĞµĞ¹ Ğ¼Ğ¾Ğ¶ĞµÑ‚ ÑĞ¾Ğ¾Ñ‚Ğ²-Ñ‚ÑŒ Ğ½ĞµÑĞºĞ¾Ğ»ÑŒĞºĞ¾ ĞºĞ°Ğ¼Ğ¿Ğ°Ğ½Ğ¸Ğ¹ Ğ¸ÑÑ‚Ğ¾Ñ‡Ğ½Ğ¸ĞºĞ¾Ğ²
                 $aSrcData[$src_type][$uid][$src_id] = $campaign;
             }
         }
@@ -197,14 +205,14 @@ class CollectDataTask extends AppShell {
                     if ($campaign = Hash::get($aSrcData, $src_type.'.'.$uid.'.'.$row['src_id'])) {
                         $profit = floatval($row['revenue']) - $campaign['cost'];
                         $data = array(
-                            // äîï.äàííûå äëÿ ñîõğàíåíèÿ â ñòàòèñòèêó
+                            // Ğ´Ğ¾Ğ¿.Ğ´Ğ°Ğ½Ğ½Ñ‹Ğµ Ğ´Ğ»Ñ ÑĞ¾Ñ…Ñ€Ğ°Ğ½ĞµĞ½Ğ¸Ñ Ğ² ÑÑ‚Ğ°Ñ‚Ğ¸ÑÑ‚Ğ¸ĞºÑƒ
                             'campaign_id' => $campaign['id'],
                             'src_visits' => $campaign['src_visits'],
                             'src_clicks' => $campaign['src_clicks'],
                             'cost' => $campaign['cost'],
                             'src_data' => $campaign['src_data'],
 
-                            // äàííûå èç òğıêåğà - â êàìïàíèş è ñòàòèñòèêó
+                            // Ğ´Ğ°Ğ½Ğ½Ñ‹Ğµ Ğ¸Ğ· Ñ‚Ñ€ÑĞºĞµÑ€Ğ° - Ğ² ĞºĞ°Ğ¼Ğ¿Ğ°Ğ½Ğ¸Ñ Ğ¸ ÑÑ‚Ğ°Ñ‚Ğ¸ÑÑ‚Ğ¸ĞºÑƒ
                             'trk_visits' => intval($row['visits']),
                             'trk_clicks' => intval($row['clicks']),
                             'conversion' => intval($row['conversions']),
@@ -220,7 +228,7 @@ class CollectDataTask extends AppShell {
                         $this->CampaignStats->clear();
                         $this->CampaignStats->save($data);
 
-                        $data['id'] = $campaign['id']; // äëÿ ñîõğàíåíèÿ â íóæíóş êàìïàíèş
+                        $data['id'] = $campaign['id']; // Ğ´Ğ»Ñ ÑĞ¾Ñ…Ñ€Ğ°Ğ½ĞµĞ½Ğ¸Ñ Ğ² Ğ½ÑƒĞ¶Ğ½ÑƒÑ ĞºĞ°Ğ¼Ğ¿Ğ°Ğ½Ğ¸Ñ
                         $this->Campaign->clear();
                         $this->Campaign->save($data);
                     }
@@ -234,5 +242,111 @@ class CollectDataTask extends AppShell {
         }
 
         $this->Task->setStatus($subtask_id, Task::DONE);
+    }
+
+    private function _getCampaignList($src_type) {
+        $aData = $this->Campaign->findAllBySrcType($src_type, array('id', 'src_id', 'src_uid', 'url'));
+        return $aData;
+    }
+
+    private function _processPlugrushDomains($subtask_id) {
+        $aCampaigns = $this->_getCampaignList(PlugrushApi::TYPE);
+        $aGlobalDomains = array();
+        $aSrcData = array();
+        $aTrkData = array();
+
+        $this->Task->setProgress($subtask_id, 0, count($aCampaigns));
+        $this->Task->setStatus($subtask_id, Task::RUN);
+
+        foreach($aCampaigns as $i => $campaign) {
+            $campaign = $campaign['Campaign'];
+            try {
+                $src_id = $campaign['src_id'];
+                $url = $campaign['url'];
+
+                $aSrcData[$src_id] = $this->PlugrushApi->getDomainStats($src_id);
+                //if (isset($aSrcData[$src_id])) {
+                    $aDomains = Hash::combine($aSrcData[$src_id], '{n}.domain_id', '{n}.domain');
+                    $aDomainID = $this->_addDomains(PlugrushApi::TYPE, $campaign['id'], $aDomains);
+
+                    $aTrkData[$src_id] = $this->VoluumApi->getDomainList($url, $src_id, count($aDomainID));
+                    $aDomains = Hash::combine($aSrcData[$src_id], '{n}.domain_id', '{n}');
+                    $aTrkDomains = Hash::combine($aTrkData[$src_id], '{n}.domain', '{n}');
+                    foreach($aDomains as $domain_uid => $stats) {
+                        $status = $this->Task->getStatus($this->id);
+                        if ($status == Task::ABORT) {
+                            throw new Exception(__('Processing was aborted by user'));
+                        }
+
+                        if (isset($aDomainID[$domain_uid])) {
+                            $data = array(
+                                'campaign_id' => $campaign['id'],
+                                'domain_id' => $aDomainID[$domain_uid],
+                                'src_visits' => intval($stats['uniques']),
+                                'cost' => floatval($stats['amount']),
+                                'src_data' => serialize($stats)
+                            );
+
+                            if (isset($aTrkDomains[$domain_uid])) {
+                                $row = $aTrkDomains[$domain_uid];
+                                $profit = floatval($row['revenue']) - $data['cost'];
+                                $data['trk_visits'] = intval($row['visits']);
+                                $data['trk_clicks'] = intval($row['clicks']);
+                                $data['conversion'] = intval($row['conversions']);
+                                $data['revenue'] = floatval($row['revenue']);
+                                $data['profit'] = $profit; // $0.00
+                                $data['cpv'] = $data['cost'] / $data['src_visits']; // $0.0000
+                                $data['ctr'] = ($data['src_visits']) ? round(intval($row['clicks']) / $data['src_visits'] * 100) : 0; // 0.00%
+                                $data['roi'] = ($data['cost']) ? round($profit / $data['cost'] * 100) : 0;
+                                $data['epv'] = ($data['src_visits']) ? floatval($row['revenue']) / $data['src_visits'] : 0;
+                                $data['trk_data'] = serialize($row);
+                            }
+
+                            $this->DomainStats->clear();
+                            $this->DomainStats->save($data);
+                        }
+                    }
+                //}
+            } catch (Exception $e) {
+                $status = $this->Task->getStatus($this->id);
+                if ($status == Task::ABORT) {
+                    throw $e;
+                } // Ğ¸Ğ½Ğ°Ñ‡Ğµ Ğ¿Ñ€Ğ¾ÑÑ‚Ğ¾ Ğ¿Ñ€Ğ¾Ğ´Ğ¾Ğ»Ğ¶Ğ°ĞµĞ¼ Ğ¾Ğ±Ñ€Ğ°Ğ±Ğ¾Ñ‚ĞºÑƒ
+            }
+            $this->Task->setProgress($subtask_id, ++$i);
+            $_progress = $this->Task->getProgressInfo($subtask_id);
+            $progress = $this->Task->getProgressInfo($this->id);
+            $this->Task->setProgress($this->id, $progress['progress'] + $_progress['percent'] * 0.01);
+        }
+        $this->Task->setStatus($subtask_id, Task::DONE);
+    }
+
+    /**
+     * @param $src_type - Ñ‚Ğ¸Ğ¿ Ğ¸ÑÑ‚Ğ¾Ñ‡Ğ½Ğ¸ĞºĞ°
+     * @param $campaign_id - Ğ²Ğ½ÑƒÑ‚Ñ€.ID ĞºĞ°Ğ¼Ğ¿Ğ°Ğ½Ğ¸Ğ¸
+     * @param $aDomains - ÑĞ¿Ğ¸ÑĞ¾Ğº Ğ´Ğ¾Ğ¼ĞµĞ½Ğ¾Ğ² Ğ² Ğ²Ğ¸Ğ´Ğµ domain_uid => domain
+     * @return mixed - ÑĞ¿Ğ¸ÑĞ¾Ğº Ğ´Ğ¾Ğ¼ĞµĞ½Ğ¾Ğ² Ğ² Ğ²Ğ¸Ğ´Ğµ domain_uid => Ğ²Ğ½ÑƒÑ‚Ñ€.ID Ğ´Ğ¾Ğ¼ĞµĞ½Ğ°
+     */
+    private function _addDomains($src_type, $campaign_id, $aDomains) {
+        $fields = array('domain_uid', 'id');
+        $conditions = compact('src_type');
+        $aExists = $this->Domain->find('list', compact('fields', 'conditions'));
+        $ids = $this->Campaign->getDomainIds($campaign_id);
+        foreach($aDomains as $domain_uid => $domain) {
+            if (!isset($aExists[$domain_uid])) {
+                $this->Domain->clear();
+                $this->Domain->save(compact('src_type', 'domain', 'domain_uid'));
+                $domain_id = $this->Domain->id;
+                $aExists[$domain_uid] = $domain_id;
+            } else {
+                $domain_id = $aExists[$domain_uid];
+            }
+
+            if (!in_array($domain_id, $ids)) {
+                $this->CampaignDomain->clear();
+                $this->CampaignDomain->save(compact('campaign_id', 'domain_id'));
+            }
+        }
+        return $aExists;
     }
 }

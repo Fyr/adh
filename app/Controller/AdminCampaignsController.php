@@ -22,7 +22,6 @@ class AdminCampaignsController extends AdminController {
         if (!$this->request->data('Filter.to')) {
             $this->request->data('Filter.to', date('Y-m-d'));
         }
-        // $this->Settings->adjustDateRange($this->request->data('Filter.from'), $this->request->data('Filter.to'));
         if ($group_id) {
             $group = $this->CampaignGroup->findById($group_id);
             if ($group) {
@@ -38,18 +37,6 @@ class AdminCampaignsController extends AdminController {
 
         $options = array('Today', 'Yesterday', 'Last 7 days', 'Last 14 days', 'Last 30 days');
         $this->set('datesOptions', $options);
-
-        /*
-        $ids = Hash::extract($aRowset, '{n}.Campaign.src_id');
-        foreach ($ids as $id) {
-            try {
-                $aData = $this->PlugrushApi->getDomainStats($id);
-                fdebug($aData);
-            } catch (Exception $e) {
-                fdebug($id.':'.$e->getMessage() . "\r\n", 'error.log');
-            }
-        }
-        */
     }
 
     public function view($id) {
