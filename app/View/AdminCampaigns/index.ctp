@@ -2,7 +2,27 @@
 <link href="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap-daterangepicker/daterangepicker-orig.css" rel="stylesheet" type="text/css" />
 <script src="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap-daterangepicker/moment.min.js" type="text/javascript"></script>
 <script src="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap-daterangepicker/daterangepicker2.js" type="text/javascript"></script>
-
+<style>
+	.daterangepicker_input .input-mini { width: 100% !important;}
+	.daterangepicker td.start-date {
+		border-radius: 4px 0 0 4px !important;
+	}
+	.daterangepicker td.end-date {
+		border-radius: 0 4px 4px 0 !important;
+	}
+	/* .dataTable tbody td:nth-child(2), td:nth-child(3), td:nth-child(5), td:nth-child(6), td:nth-child(7) { white-space: nowrap; } */
+	table.dataTable tbody tr th, table.dataTable tbody tr td {
+		padding: 8px 4px;
+		vertical-align: middle;
+	}
+	.dataTable tbody td:nth-child(16) { padding: 0; }
+	.table > thead > tr > th.grid-x-header {border-bottom: 1px solid #e7ecf1; text-align: center;}
+	.filter-list-header {font-weight: bold; margin: 10px 0 5px 0;}
+	.filter-list-item {margin: 3px 0;}
+	.portlet.portlet-mini.light .portlet-body {padding-top: 0;}
+	.portlet.portlet-mini .table-toolbar { margin: 0; }
+	.portlet.portlet-mini .tabbable-bordered { margin: 0;}
+</style>
 <?
 	$this->Html->script(array(
 		'/core/js/json_handler',
@@ -36,8 +56,10 @@
 
 	$columns['Campaign.src_id']['label'] = 'ID';
 	$columns['Campaign.src_name']['label'] = 'Campaign name';
-	$columns['Campaign.src_visits']['label'] = 'LP Visits';
-	$columns['Campaign.trk_clicks']['label'] = 'LP Clicks';
+	$columns['Campaign.src_visits']['label'] = 'Visits';
+	$columns['Campaign.trk_clicks']['label'] = 'Clicks';
+	$columns['Campaign.conversion']['label'] = 'Conv.';
+	$columns['Campaign.revenue']['label'] = 'Rev.';
 	$columns['Campaign.ctr']['label'] = 'CTR';
 	$columns['Campaign.cpv']['label'] = 'CPV';
 	$columns['Campaign.roi']['label'] = 'ROI';
@@ -84,24 +106,13 @@
 		$_row['Campaign']['trend'] = $this->Html->tag('span', '', array('id' => 'trend-'.$row['id'], 'class' => 'trendChart'));
 	}
 
+	// $actions = $this->PHTableGrid->getDefaultActions('Campaign');
+	$row_actions = '../AdminCampaigns/_row_actions'
 ?>
-<style>
-	.daterangepicker_input .input-mini { width: 100% !important;}
-	.daterangepicker td.start-date {
-		border-radius: 4px 0 0 4px !important;
-	}
-	.daterangepicker td.end-date {
-		border-radius: 0 4px 4px 0 !important;
-	}
-	/* .dataTable tbody td:nth-child(2), td:nth-child(3), td:nth-child(5), td:nth-child(6), td:nth-child(7) { white-space: nowrap; } */
-	.dataTable tbody td:nth-child(16) { padding: 0; }
-	.table > thead > tr > th.grid-x-header {border-bottom: 1px solid #e7ecf1; text-align: center;}
-	.filter-list-header {font-weight: bold; margin: 10px 0 5px 0;}
-	.filter-list-item {margin: 3px 0;}
-</style>
+
 <div class="row">
 	<div class="col-md-12">
-		<div class="portlet light bordered">
+		<div class="portlet light bordered portlet-mini">
 			<?=$this->element('AdminUI/form_title', compact('title', 'actions'))?>
 
 			<div class="portlet-body dataTables_wrapper">
@@ -137,7 +148,7 @@
 						</div>
 					</div>
 				</div>
-				<?=$this->PHTableGrid->render('Campaign', compact('checkboxes', 'columns', 'rowset'))?>
+				<?=$this->PHTableGrid->render('Campaign', compact('checkboxes', 'columns', 'rowset', 'row_actions'))?>
 			</div>
 <?
 	echo $this->PHForm->create('Campaign');
@@ -157,8 +168,8 @@ function renderTrendCharts(e, data) {
 	$(e).highcharts({
 		chart: {
 			//zoomType: 'xy',
-			width: 200,
-			height: 80
+			width: 100,
+			height: 70
 		},
 		title: false,
 		xAxis: [{
@@ -176,6 +187,7 @@ function renderTrendCharts(e, data) {
 				}
 			},
 			labels: {
+				enabled: false,
 				reserveSpace: false,
 				x: -5,
 				style: {
@@ -190,6 +202,7 @@ function renderTrendCharts(e, data) {
 				}
 			},
 			labels: {
+				enabled: false,
 				format: '{value}%',
 				x: 3,
 				reserveSpace: false,

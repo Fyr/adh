@@ -1,2 +1,9 @@
 .logo-service { width: 20px; position: relative; top: -2px; }
-.
+
+
+.table .btn.btn-icon-only.action-icon { margin-right: 2px; height: 24px; width: 24px;}
+.table .btn.btn-icon-only.action-icon i {
+    display: block;
+    line-height: 10px;
+    margin-top: 0px;
+}
