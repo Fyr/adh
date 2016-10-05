@@ -6,9 +6,15 @@
 <script type="text/javascript">
 
 
-var domainsGrid, columns;
+var domainsGrid, columns, domains;
 $(function(){
-    // var formatPrice = function(val) {
+    function formatDomainName(domain, row) {
+        if (!row.is_trk_data) {
+            domain+= '<div class="pull-right"><img title="No tracker data!" alt="No tracker data!" class="logo-service" src="/img/attention-icon.png"></div>';
+        }
+        return Format.tag('td', null, domain);
+    }
+
     function formatPrice(val) {
         if (isset(val)) {
             return Format.tag('td', {align: 'right'}, Price.format(val));
@@ -33,24 +39,23 @@ $(function(){
     };
 
     columns = [
-        {key: 'domain', label: 'Domain'},
-        {key: 'Tracker.visits', label: 'Visits', format: 'int'},
-        {key: 'Tracker.clicks', label: 'Clicks', format: 'int'},
-        {key: 'Tracker.conversions', label: 'Conv.', format: 'int'},
-        {key: 'Tracker.revenue', label: 'Rev.', render: formatPrice},
-        {key: 'Tracker.cost', label: 'Cost', render: formatPrice},
-        {key: 'Tracker.profit', label: 'Profit', render: formatColorPrice},
-        {key: 'Tracker.cpv', label: 'CPV', render: formatPrice},
-        {key: 'Tracker.ctr', label: 'CTR', format: 'percent'},
-        {key: 'Tracker.roi', label: 'ROI', render: formatColorPercent},
-        {key: 'Sources.plugrush.uniques', label: 'Uniques', format: 'int'},
-        {key: 'Sources.plugrush.raws', label: 'Raws', format: 'int'},
-        {key: 'Sources.plugrush.amount', label: 'Amount', render: formatPrice},
+        {key: 'domain', label: 'Domain', render: formatDomainName},
+        {key: 'src_visits', label: 'Visits', format: 'int'},
+        {key: 'trk_clicks', label: 'Clicks', format: 'int'},
+        {key: 'conversion', label: 'Conv.', format: 'int'},
+        {key: 'revenue', label: 'Rev.', render: formatPrice},
+        {key: 'cost', label: 'Cost', render: formatPrice},
+        {key: 'profit', label: 'Profit', render: formatColorPrice},
+        {key: 'cpv', label: 'CPV', render: formatPrice},
+        {key: 'ctr', label: 'CTR', format: 'percent'},
+        {key: 'roi', label: 'ROI', render: formatColorPercent},
+        {key: 'epv', label: 'EPV', format: formatPrice}
     ];
 
     // $('#domains-filter').html(tmpl('tmpl-domains-add-filter'));
 
-    domainsGrid = new DomainListGrid();
+    // domainsGrid = new DomainListGrid();
+    domainsGrid = new TableGrid();
     domainsGrid.init('#domains-report', columns);
     var parent = {};
 /*

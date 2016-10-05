@@ -59,8 +59,7 @@ var TableGrid = function() {
 
 	this.renderBody = function() {
 		var html = '';
-		for(var i = 0; i < self.data.length; i++) {
-			var row = self.data[i];
+		JSON.iterate(self.data, function(row){
 			var tr = '';
 			for(var j = 0; j < self.columns.length; j++) {
 				var col = self.columns[j];
@@ -89,7 +88,7 @@ var TableGrid = function() {
 				tr+= val;
 			}
 			html+= Format.tag('tr', null, tr);
-		}
+		});
 		return html;
 	};
 

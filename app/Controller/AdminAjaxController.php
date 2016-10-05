@@ -15,7 +15,12 @@ class AdminAjaxController extends PAjaxController {
 			}
 			$this->CampaignStats = $this->loadModel('CampaignStats');
 			$stats = $this->CampaignStats->getSummaryStats($ids, $this->request->data('from'), $this->request->data('to'));
-			$this->setResponse(compact('stats'));
+
+			$this->DomainStats = $this->loadModel('DomainStats');
+			$domainStats = $this->DomainStats->getTotalStats($ids, $this->request->data('from'), $this->request->data('to'));
+
+			$domains = $this->loadModel('Domain')->getOptions(array_keys($domainStats));
+			$this->setResponse(compact('stats', 'domainStats', 'domains'));
 
 		} catch (Exception $e) {
 			$this->setError($e->getMessage());

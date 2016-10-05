@@ -30,9 +30,11 @@ class CollectDataTask extends AppShell {
         ));
 
         $aSubtasks = array(
+            /*
             array('name' => 'PlugrushAPI', 'method' => '_processPlugrush'),
             array('name' => 'PopAdsAPI', 'method' => '_processPopads'),
             array('name' => 'VoluumAPI', 'method' => '_processVoluum'),
+            */
             array('name' => 'PlugrushDomains', 'method' => '_processPlugrushDomains')
         );
         $this->Task->setProgress($this->id, 0, count($aSubtasks));
@@ -251,7 +253,6 @@ class CollectDataTask extends AppShell {
 
     private function _processPlugrushDomains($subtask_id) {
         $aCampaigns = $this->_getCampaignList(PlugrushApi::TYPE);
-        $aGlobalDomains = array();
         $aSrcData = array();
         $aTrkData = array();
 
@@ -265,48 +266,48 @@ class CollectDataTask extends AppShell {
                 $url = $campaign['url'];
 
                 $aSrcData[$src_id] = $this->PlugrushApi->getDomainStats($src_id);
-                //if (isset($aSrcData[$src_id])) {
-                    $aDomains = Hash::combine($aSrcData[$src_id], '{n}.domain_id', '{n}.domain');
-                    $aDomainID = $this->_addDomains(PlugrushApi::TYPE, $campaign['id'], $aDomains);
+                $aDomains = Hash::combine($aSrcData[$src_id], '{n}.domain_id', '{n}.domain');
+                $aDomainID = $this->_addDomains(PlugrushApi::TYPE, $campaign['id'], $aDomains);
 
-                    $aTrkData[$src_id] = $this->VoluumApi->getDomainList($url, $src_id, count($aDomainID));
-                    $aDomains = Hash::combine($aSrcData[$src_id], '{n}.domain_id', '{n}');
-                    $aTrkDomains = Hash::combine($aTrkData[$src_id], '{n}.domain', '{n}');
-                    foreach($aDomains as $domain_uid => $stats) {
-                        $status = $this->Task->getStatus($this->id);
-                        if ($status == Task::ABORT) {
-                            throw new Exception(__('Processing was aborted by user'));
-                        }
-
-                        if (isset($aDomainID[$domain_uid])) {
-                            $data = array(
-                                'campaign_id' => $campaign['id'],
-                                'domain_id' => $aDomainID[$domain_uid],
-                                'src_visits' => intval($stats['uniques']),
-                                'cost' => floatval($stats['amount']),
-                                'src_data' => serialize($stats)
-                            );
-
-                            if (isset($aTrkDomains[$domain_uid])) {
-                                $row = $aTrkDomains[$domain_uid];
-                                $profit = floatval($row['revenue']) - $data['cost'];
-                                $data['trk_visits'] = intval($row['visits']);
-                                $data['trk_clicks'] = intval($row['clicks']);
-                                $data['conversion'] = intval($row['conversions']);
-                                $data['revenue'] = floatval($row['revenue']);
-                                $data['profit'] = $profit; // $0.00
-                                $data['cpv'] = $data['cost'] / $data['src_visits']; // $0.0000
-                                $data['ctr'] = ($data['src_visits']) ? round(intval($row['clicks']) / $data['src_visits'] * 100) : 0; // 0.00%
-                                $data['roi'] = ($data['cost']) ? round($profit / $data['cost'] * 100) : 0;
-                                $data['epv'] = ($data['src_visits']) ? floatval($row['revenue']) / $data['src_visits'] : 0;
-                                $data['trk_data'] = serialize($row);
-                            }
-
-                            $this->DomainStats->clear();
-                            $this->DomainStats->save($data);
-                        }
+                $aTrkData[$src_id] = $this->VoluumApi->getDomainList($url, $src_id, count($aDomainID));
+                $aDomains = Hash::combine($aSrcData[$src_id], '{n}.domain_id', '{n}');
+                $aTrkDomains = Hash::combine($aTrkData[$src_id], '{n}.domain', '{n}');
+                foreach($aDomains as $domain_uid => $stats) {
+                    $status = $this->Task->getStatus($this->id);
+                    if ($status == Task::ABORT) {
+                        throw new Exception(__('Processing was aborted by user'));
                     }
-                //}
+
+                    if (isset($aDomainID[$domain_uid])) {
+                        $data = array(
+                            'campaign_id' => $campaign['id'],
+                            'domain_id' => $aDomainID[$domain_uid],
+                            'src_visits' => intval($stats['uniques']),
+                            'cost' => floatval($stats['amount']),
+                            'src_data' => serialize($stats),
+                            'is_trk_data' => false
+                        );
+
+                        if (isset($aTrkDomains[$domain_uid])) {
+                            $row = $aTrkDomains[$domain_uid];
+                            $profit = floatval($row['revenue']) - $data['cost'];
+                            $data['trk_visits'] = intval($row['visits']);
+                            $data['trk_clicks'] = intval($row['clicks']);
+                            $data['conversion'] = intval($row['conversions']);
+                            $data['revenue'] = floatval($row['revenue']);
+                            $data['profit'] = $profit; // $0.00
+                            $data['cpv'] = $data['cost'] / $data['src_visits']; // $0.0000
+                            $data['ctr'] = ($data['src_visits']) ? round(intval($row['clicks']) / $data['src_visits'] * 100) : 0; // 0.00%
+                            $data['roi'] = ($data['cost']) ? round($profit / $data['cost'] * 100) : 0;
+                            $data['epv'] = ($data['src_visits']) ? floatval($row['revenue']) / $data['src_visits'] : 0;
+                            $data['trk_data'] = serialize($row);
+                            $data['is_trk_data'] = true;
+                        }
+
+                        $this->DomainStats->clear();
+                        $this->DomainStats->save($data);
+                    }
+                }
             } catch (Exception $e) {
                 $status = $this->Task->getStatus($this->id);
                 if ($status == Task::ABORT) {

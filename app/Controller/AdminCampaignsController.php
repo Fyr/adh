@@ -37,6 +37,9 @@ class AdminCampaignsController extends AdminController {
 
         $options = array('Today', 'Yesterday', 'Last 7 days', 'Last 14 days', 'Last 30 days');
         $this->set('datesOptions', $options);
+
+        $this->DomainStats = $this->loadModel('DomainStats');
+        $domainStats = $this->DomainStats->getTotalStats(array(68, 71));
     }
 
     public function view($id) {

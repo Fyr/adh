@@ -89,7 +89,7 @@ class CampaignStats extends AppModel {
                     }
                 }
                 foreach(array('src_visits', 'trk_clicks', 'conversion', 'revenue', 'cost', 'profit') as $key) {
-                    $aTotal[$_date][$key]+= $aCurrData[$key];
+                    $aTotal[$_date][$key]+= $aCurrData[$key]; // складываем статистику по всем выбранным кампаниям
                 }
             }
         }

@@ -24,8 +24,11 @@ function updateCharts() {
 
 function renderReports(response) {
     $('#summary-report').html(Tmpl('summary-report').render(response.data.stats.byDates));
-    //domainsGrid.setData(response.data.domains);
-    //domainsGrid.render();
+    for(var domain_id in response.data.domainStats) {
+        response.data.domainStats[domain_id].domain = response.data.domains[domain_id];
+    };
+    domainsGrid.setData(response.data.domainStats);
+    domainsGrid.render();
     // domainsGrid.initFilter();
 }
 
