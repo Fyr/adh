@@ -49,7 +49,7 @@ $(function(){
         {key: 'cpv', label: 'CPV', render: formatPrice},
         {key: 'ctr', label: 'CTR', format: 'percent'},
         {key: 'roi', label: 'ROI', render: formatColorPercent},
-        {key: 'epv', label: 'EPV', format: formatPrice}
+        {key: 'epv', label: 'EPV', render: formatPrice}
     ];
 
     // $('#domains-filter').html(tmpl('tmpl-domains-add-filter'));

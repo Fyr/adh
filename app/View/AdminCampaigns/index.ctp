@@ -157,7 +157,14 @@
 		'Summary Report' => $this->element('../AdminCampaigns/_report'),
 		'Site Targeting' => $this->element('../AdminCampaigns/_domains')
 	);
-	echo $this->Html->div('tabbable-bordered', $this->element('AdminUI/tabs', compact('tabs')));
+?>
+			<div class="tabbable-bordered">
+				<div class="pull-right">
+					<button type="button" class="btn btn-success" onclick="updateCharts()"> <i class="fa fa-refresh"></i> Update stats.</button>
+				</div>
+				<?=$this->element('AdminUI/tabs', compact('tabs'))?>
+			</div>
+<?
 	echo $this->PHForm->end();
 ?>
 		</div>
@@ -309,7 +316,7 @@ $(function(){
 
 		clearTimeout(timer);
 		timer = setTimeout(function(){
-			updateCharts();
+			// updateCharts();
 		}, 800);
 	});
 
@@ -317,7 +324,7 @@ $(function(){
 		e.stopPropagation();
 		clearTimeout(timer);
 		timer = setTimeout(function(){
-			updateCharts();
+			// updateCharts();
 		}, 700);
 	});
 });

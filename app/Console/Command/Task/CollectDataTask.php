@@ -30,11 +30,9 @@ class CollectDataTask extends AppShell {
         ));
 
         $aSubtasks = array(
-            /*
             array('name' => 'PlugrushAPI', 'method' => '_processPlugrush'),
             array('name' => 'PopAdsAPI', 'method' => '_processPopads'),
             array('name' => 'VoluumAPI', 'method' => '_processVoluum'),
-            */
             array('name' => 'PlugrushDomains', 'method' => '_processPlugrushDomains')
         );
         $this->Task->setProgress($this->id, 0, count($aSubtasks));
@@ -224,6 +222,7 @@ class CollectDataTask extends AppShell {
                             'ctr' => ($campaign['src_visits']) ? round(intval($row['clicks']) / $campaign['src_visits'] * 100) : 0, // 0.00%
                             'roi' => ($campaign['cost']) ? round($profit / $campaign['cost'] * 100) : 0,
                             'epv' => ($campaign['src_visits']) ? floatval($row['revenue']) / $campaign['src_visits'] : 0,
+                            'is_trk_data' => true,
                             'trk_data' => serialize($row)
                         );
 

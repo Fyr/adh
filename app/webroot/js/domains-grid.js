@@ -18,7 +18,7 @@ var DomainListGrid = function(container, columns, data) {
 		self.data = data;
 		self.oldData = data;
 	};
-
+/*
 	this.render = function() {
 		$('#domains-filter').html(Tmpl('domains-filter').render(self));
 		var html = Format.tag('table', {class: 'table table-striped table-bordered table-hover table-header-fixed dataTable'},
@@ -27,14 +27,15 @@ var DomainListGrid = function(container, columns, data) {
 		self.$.html(html);
 		this.initHandlers();
 	};
-
+*/
+	/*
 	this.renderHeader = function() {
 		var html = Format.tag('tr', null,
 			Format.tag('th', {colspan: 10, class: 'grid-x-header'}, 'Tracker') + Format.tag('th', {colspan: 3, class: 'grid-x-header'}, 'PlugRush.com')
 		);
 		return html + this.parent.renderHeader();
 	};
-
+*/
 	this.onSelectFilterRule = function() {
 		$filter = $('#domainFilter');
 		$('.filterOptions .filter-options', $filter).hide();

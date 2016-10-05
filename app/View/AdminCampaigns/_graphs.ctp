@@ -24,10 +24,14 @@ function updateCharts() {
 
 function renderReports(response) {
     $('#summary-report').html(Tmpl('summary-report').render(response.data.stats.byDates));
+    aData = [];
     for(var domain_id in response.data.domainStats) {
-        response.data.domainStats[domain_id].domain = response.data.domains[domain_id];
+        row = response.data.domainStats[domain_id];
+        row.domain = response.data.domains[domain_id];
+        row.epv = parseFloat(row.epv);
+        aData.push(row);
     };
-    domainsGrid.setData(response.data.domainStats);
+    domainsGrid.setData(aData);
     domainsGrid.render();
     // domainsGrid.initFilter();
 }
