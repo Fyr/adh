@@ -128,20 +128,34 @@
 						<div class="col-md-6 text-right">
 							<div class="btn-group">
 <?
-	echo $this->PHForm->create('Filter', array('class' => 'form-inline', 'id' => 'filterForm'));
+	echo $this->PHForm->create('Filter', array(
+		'class' => 'form-inline',
+		'id' => 'filterForm',
+		'type' => 'get',
+		'url' => array('controller' => 'AdminCampaigns', 'action' => 'index')
+	)); // 'url' => array('action' => 'index')
+	echo $this->PHForm->label('Source type', null, array('for' => 'FilterTypeId')).' ';
+	echo $this->PHForm->input('type_id', array(
+		'options' => $aTypeOptions,
+		'value' => $this->request->query('type_id'),
+		'autocomplete' => 'off'
+	));
+	echo $this->PHForm->label('Group', null, array('for' => 'FilterGroupId')).' ';
+	echo $this->PHForm->input('group_id', array(
+		'options' => $aGroupOptions,
+		'value' => $this->request->query('group_id'),
+		'autocomplete' => 'off'
+	));
 ?>
+								<button type="submit" class="btn btn-success pull-right" style="margin-left: 10px;"> <i class="fa fa-search"></i> Find </button>
 								<div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 250px">
 									<i class="fa fa-calendar"></i>&nbsp;
 									<span></span> <b class="caret"></b>
 								</div>
 <?
-	echo $this->PHForm->hidden('from');
-	echo $this->PHForm->hidden('to');
-/*
-	$datesOptions = array_combine($datesOptions, $datesOptions);
-	echo $this->PHForm->input('datesType', array('options' => $datesOptions, 'class' => 'form-control', 'autocomplete' => 'off', 'onchange' => "$('#filterForm').submit();"));
-*/
-	echo $this->PHForm->end(); // 'columns', 'row_actions',
+	echo $this->PHForm->hidden('from', array('value' => $from));
+	echo $this->PHForm->hidden('to', array('value' => $to));
+	echo $this->PHForm->end();
 ?>
 							</div>
 
@@ -247,7 +261,6 @@ function renderTrendCharts(e, data) {
 	});
 }
 
-var data;
 $(function() {
 <?
 	foreach($aStats as $campaign_id => $stats) {
@@ -262,7 +275,7 @@ $(function() {
 			$data['roi'][] = intval($row['roi']);
 		}
 ?>
-	data = <?=json_encode($data)?>;
+	var data = <?=json_encode($data)?>;
 	renderTrendCharts('#trend-<?=$campaign_id?>', data);
 <?
 	}
@@ -270,13 +283,11 @@ $(function() {
 
 });
 </script>
-
-
 <script>
 var timer = null;
 $(function(){
-	var startDate = Date.fromSqlDate('<?=$this->request->data('Filter.from')?>');
-	var endDate = Date.fromSqlDate('<?=$this->request->data('Filter.to')?>');
+	var startDate = Date.fromSqlDate('<?=$from?>');
+	var endDate = Date.fromSqlDate('<?=$to?>');
 	function showDateRange(start, end) {
 		$('#FilterFrom').val(start.format('YYYY-MM-DD'));
 		$('#FilterTo').val(end.format('YYYY-MM-DD'));

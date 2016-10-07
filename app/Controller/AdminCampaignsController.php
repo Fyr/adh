@@ -1,12 +1,17 @@
 <?php
 App::uses('AppController', 'Controller');
 App::uses('AdminController', 'Controller');
+App::uses('CampaignGroup', 'Model');
+App::uses('CampaignStats', 'Model');
+App::uses('PlugrushApi', 'Model');
+App::uses('PopadsApi', 'Model');
 class AdminCampaignsController extends AdminController {
     public $name = 'AdminCampaigns';
-    public $uses = array('Campaign', 'VoluumApi', 'PlugRushApi', 'Settings', 'CampaignGroup', 'CampaignStats', 'PlugrushApi');
+    public $uses = array('Campaign', 'PlugrushApi', 'Settings', 'CampaignGroup', 'CampaignStats');
     public $helpers = array('Price');
 
     public $paginate = array(
+        'conditions' => array(),
         'fields' => array(
             'src_type', 'src_id', 'src_name', 'url', 'active', 'status', 'bid', 'src_visits', 'trk_clicks',
             'conversion', 'revenue', 'cost', 'profit', 'cpv', 'ctr', 'roi', 'epv', 'trk_data'
@@ -16,20 +21,28 @@ class AdminCampaignsController extends AdminController {
     );
 
     public function index($group_id = null) {
-        if (!$this->request->data('Filter.from')) {
-            $this->request->data('Filter.from', date('Y-m-d', time() - 7 * DAY));
+        $from = $this->request->query('from');
+        if (!$from) {
+            $from = date('Y-m-d', time() - 7 * DAY);
         }
-        if (!$this->request->data('Filter.to')) {
-            $this->request->data('Filter.to', date('Y-m-d'));
+        $to = $this->request->query('to');
+        if (!$to) {
+            $to = date('Y-m-d');
         }
+        $this->set(compact('from', 'to'));
+
+        $group_id = ($group_id) ? $group_id : intval($this->request->query('group_id'));
         if ($group_id) {
             $group = $this->CampaignGroup->findById($group_id);
             if ($group) {
                 $ids = explode(',', $group['CampaignGroup']['campaign_ids']);
-                $this->paginate['conditions'] = array('id' => $ids);
+                $this->paginate['conditions']['id'] = $ids;
             }
         }
-
+        $type_id = $this->request->query('type_id');
+        if ($type_id) {
+            $this->paginate['conditions']['src_type'] = $type_id;
+        }
         $aRowset = $this->PCTableGrid->paginate('Campaign');
         $ids = Hash::extract($aRowset, '{n}.Campaign.id');
 
@@ -38,8 +51,14 @@ class AdminCampaignsController extends AdminController {
         $options = array('Today', 'Yesterday', 'Last 7 days', 'Last 14 days', 'Last 30 days');
         $this->set('datesOptions', $options);
 
-        $this->DomainStats = $this->loadModel('DomainStats');
-        $domainStats = $this->DomainStats->getTotalStats(array(68, 71));
+        $aGroupOptions = $this->CampaignGroup->getOptions();
+        $aGroupOptions = Hash::merge(array(' - any group - '), $aGroupOptions);
+        $aTypeOptions = array(
+            ' - any type - ',
+            PlugrushApi::TYPE => Configure::read('plugrush.title'),
+            PopadsApi::TYPE => Configure::read('popads.title')
+        );
+        $this->set(compact('aGroupOptions', 'aTypeOptions'));
     }
 
     public function view($id) {
