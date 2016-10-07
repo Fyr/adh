@@ -23,7 +23,7 @@ var DomainListGrid = function() {
 		$('#domains-filter').html(Tmpl('domains-filter').render(self));
 		var html = Format.tag('table', {class: 'table table-striped table-bordered table-hover table-header-fixed dataTable'},
 			Format.tag('thead', null, this.renderHeader()) + Format.tag('tbody', null, this.renderBody())
-		);
+		) + 'Total: ' + self.data.length + ' domains';
 		self.$.html(html);
 		this.initHandlers();
 	};
@@ -96,7 +96,7 @@ var DomainListGrid = function() {
 			} else {
 				lFlag = (value == filter.options);
 			}
-			lFlagAll = (filter.oper == 'or') ? lFlagAll || lFlag : lFlagAll && lFlag;
+			lFlagAll = (filter.oper == 'or' && i > 0) ? lFlagAll || lFlag : lFlagAll && lFlag;
 		}
 		return lFlagAll;
 	};

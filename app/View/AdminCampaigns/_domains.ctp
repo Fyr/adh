@@ -38,8 +38,12 @@ $(function(){
 
     columns = [
         {key: 'domain', label: 'Domain', render: formatDomainName},
-        {key: 'src_visits', label: 'Visits', format: 'int'},
-        {key: 'trk_clicks', label: 'Clicks', format: 'int'},
+        {key: 'src_visits', label: 'Visits', render: function(val, row){
+            return Format.tag('td', {align: 'right'}, row['src_visits'] + ' (' + row['trk_visits'] + ')');
+        }},
+        {key: 'trk_clicks', label: 'Clicks', render: function(val, row){
+            return Format.tag('td', {align: 'right'}, row['trk_clicks'] + ' (' + row['src_clicks'] + ')');
+        }},
         {key: 'conversion', label: 'Conv.', format: 'int'},
         {key: 'revenue', label: 'Rev.', render: formatPrice},
         {key: 'cost', label: 'Cost', render: formatPrice},
@@ -47,7 +51,9 @@ $(function(){
         {key: 'cpv', label: 'CPV', render: formatPrice},
         {key: 'ctr', label: 'CTR', format: 'percent'},
         {key: 'roi', label: 'ROI', render: formatColorPercent},
-        {key: 'epv', label: 'EPV', render: formatPrice}
+        {key: 'epv', label: 'EPV', render: function(val, row){
+            return Format.tag('td', {align: 'right'}, Price.format(row['epv']) + ' (' + Price.format(row['trk_epv']) + ')');
+        }}
     ];
 
     domainsGrid = new DomainListGrid();

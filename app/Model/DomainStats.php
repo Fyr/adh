@@ -39,12 +39,12 @@ class DomainStats extends AppModel {
         foreach($aStats as $domain_id => $stats) {
             $total = array('is_trk_data' => true);
             // обнуляем массив
-            foreach(array('src_visits', 'trk_clicks', 'conversion', 'revenue', 'cost', 'profit') as $key) {
+            foreach(array('src_visits', 'trk_visits', 'src_clicks', 'trk_clicks', 'conversion', 'revenue', 'cost', 'profit') as $key) {
                 $total[$key] = 0;
             }
             // суммируем статистику по кампаниям
             foreach($stats as $campaign_id => $_stats) {
-                foreach (array('src_visits', 'trk_clicks', 'conversion', 'revenue', 'cost', 'profit') as $key) {
+                foreach (array('src_visits', 'trk_visits', 'src_clicks', 'trk_clicks', 'conversion', 'revenue', 'cost', 'profit') as $key) {
                     $total[$key] += $_stats[$key];
                 }
                 if (!$_stats['is_trk_data']) {
@@ -56,6 +56,7 @@ class DomainStats extends AppModel {
             $total['ctr'] = ($total['src_visits']) ? round($total['trk_clicks'] / $total['src_visits'] * 100) : 0; // 0.00%
             $total['roi'] = ($total['cost']) ? round($total['profit'] / $total['cost'] * 100) : 0;
             $total['epv'] = ($total['src_visits']) ? round($total['revenue'] / $total['src_visits'], 4) : 0;
+            $total['trk_epv'] = ($total['trk_visits']) ? round($total['revenue'] / $total['trk_visits'], 4) : 0;
 
             $aStats[$domain_id] = $total;
         }

@@ -17,8 +17,10 @@ function updateCharts() {
 
             }
         });
+        return true;
     } else {
         $('#charts, #summary-report, #domains-report').html('<div style="margin: 30px 0; text-align: center;">- Please, select campaigns -</div>');
+        return false;
     }
 }
 

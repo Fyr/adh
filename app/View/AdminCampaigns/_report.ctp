@@ -23,8 +23,8 @@
 %}
         <tr>
             <td>{%=date%}</td>
-            <td align="right">{%=row.src_visits%}</td>
-            <td align="right">{%=row.trk_clicks%}</td>
+            <td align="right">{%=row.src_visits%} ({%=row.trk_visits%})</td>
+            <td align="right">{%=row.trk_clicks%} ({%=row.src_clicks%})</td>
             <td align="right">{%=row.conversion%}</td>
             <td align="right">{%=Price.format(row.cost)%}</td>
             <td align="right">{%=Price.format(row.revenue)%}</td>
@@ -32,7 +32,7 @@
             <td align="right">{%=Price.format(row.cpv)%}</td>
             <td align="right">{%=row.ctr%}%</td>
             <td align="right">{%=row.roi%}%</td>
-            <td align="right">{%=Price.format(row.epv)%}</td>
+            <td align="right">{%=Price.format(row.epv)%} ({%=Price.format(row.trk_epv)%})</td>
         </tr>
 {%
     }

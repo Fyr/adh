@@ -61,8 +61,11 @@
 	$checkboxes = true;
 	$columns = $this->PHTableGrid->getDefaultColumns('Campaign');
 	unset($columns['Campaign.src_type']);
+	unset($columns['Campaign.trk_visits']);
+	unset($columns['Campaign.src_clicks']);
 	unset($columns['Campaign.url']);
 	unset($columns['Campaign.active']);
+	unset($columns['Campaign.trk_epv']);
 	unset($columns['Campaign.trk_data']);
 
 	$columns['Campaign.src_id']['label'] = 'ID';
@@ -102,7 +105,10 @@
 		$class = ($row['active']) ? 'font-green-jungle' : 'font-red-thunderbird';
 		$_row['Campaign']['status'] = $this->Html->tag('span', $_row['Campaign']['status'], compact('class')).$icon;
 
-		foreach(array('bid', 'cost', 'revenue', 'cpv', 'epv') as $key) {
+		$_row['Campaign']['src_visits'] = $_row['Campaign']['src_visits'].' ('.$_row['Campaign']['trk_visits'].')';
+		$_row['Campaign']['trk_clicks'] = $_row['Campaign']['trk_clicks'].' ('.$_row['Campaign']['src_clicks'].')';
+
+		foreach(array('bid', 'cost', 'revenue', 'cpv') as $key) {
 			$_row['Campaign'][$key] = $this->Price->format($row[$key], 2);
 		}
 
@@ -113,6 +119,9 @@
 
 		$class = ($row['roi'] >= 0) ? 'font-green-jungle' : 'font-red-thunderbird';
 		$_row['Campaign']['roi'] = $this->Html->tag('span', $_row['Campaign']['roi'].'%', compact('class'));
+
+		$_row['Campaign']['epv'] = (($row['epv'] <> 0) ? $this->Price->format($row['epv'], 4) : $this->Price->format($row['epv'], 0))
+			.' ('.(($row['trk_epv'] <> 0) ? $this->Price->format($row['trk_epv'], 4) : $this->Price->format($row['trk_epv'], 0)).')';
 
 		$_row['Campaign']['trend'] = $this->Html->tag('span', '', array('id' => 'trend-'.$row['id'], 'class' => 'trendChart'));
 	}
@@ -139,11 +148,15 @@
 						<div class="col-md-6 text-right">
 							<div class="btn-group">
 <?
+	$namedParams = $this->request->named;
+	if (isset($namedParams['page'])) {
+		unset($namedParams['page']);
+	}
 	echo $this->PHForm->create('Filter', array(
 		'class' => 'form-inline',
 		'id' => 'filterForm',
 		'type' => 'get',
-		'url' => array('controller' => 'AdminCampaigns', 'action' => 'index')
+		'url' => am(array('controller' => 'AdminCampaigns', 'action' => 'index'), $namedParams)
 	)); // 'url' => array('action' => 'index')
 	echo $this->PHForm->label('Source type', null, array('for' => 'FilterTypeId')).' ';
 	echo $this->PHForm->input('type_id', array(
@@ -179,7 +192,7 @@
 ?>
 			<div class="tabbable-bordered">
 				<div class="pull-right" style="margin-left: 10px;">
-					<button type="button" class="btn btn-success" onclick="updateCharts()"> <i class="fa fa-refresh"></i> Update stats.</button>
+					<button type="button" class="btn btn-success" onclick="if (!updateCharts()) { alert('Please, select campaigns')} "> <i class="fa fa-refresh"></i> Update stats.</button>
 				</div>
 				<div id="reportrange" class="pull-right">
 					<i class="fa fa-calendar"></i>&nbsp;

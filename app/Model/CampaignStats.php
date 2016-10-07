@@ -15,8 +15,8 @@ class CampaignStats extends AppModel {
         }
 
         $fields = array(
-            'id', 'created', 'campaign_id', 'src_visits', 'trk_clicks',
-            'conversion', 'revenue', 'cost', 'profit', 'cpv', 'ctr', 'roi', 'epv'
+            'id', 'created', 'campaign_id', 'src_visits', 'trk_visits', 'src_clicks', 'trk_clicks',
+            'conversion', 'revenue', 'cost', 'profit', 'cpv', 'ctr', 'roi', 'epv', 'trk_epv'
         );
         $order = 'id';
         $aStats = $this->find('all', compact('fields', 'conditions', 'order'));
@@ -64,7 +64,7 @@ class CampaignStats extends AppModel {
             $to = strtotime(date('Y-m-d H:59:59'));
         }
 
-        $fields = array('src_visits', 'trk_clicks', 'conversion', 'revenue', 'cost', 'profit', 'cpv', 'ctr', 'roi', 'epv');
+        $fields = array('src_visits', 'trk_visits', 'src_clicks', 'trk_clicks', 'conversion', 'revenue', 'cost', 'profit', 'cpv', 'ctr', 'roi', 'epv', 'trk_epv');
         $aTotal = array();
         foreach($campaign_ids as $campaign_id) {
             $aLastData = array();
@@ -88,7 +88,7 @@ class CampaignStats extends AppModel {
                         $aTotal[$_date][$key] = 0;
                     }
                 }
-                foreach(array('src_visits', 'trk_clicks', 'conversion', 'revenue', 'cost', 'profit') as $key) {
+                foreach(array('src_visits', 'trk_visits', 'src_clicks', 'trk_clicks', 'conversion', 'revenue', 'cost', 'profit') as $key) {
                     $aTotal[$_date][$key]+= $aCurrData[$key]; // складываем статистику по всем выбранным кампаниям
                 }
             }
@@ -98,6 +98,7 @@ class CampaignStats extends AppModel {
             $aTotal[$date]['ctr'] = ($stats['src_visits']) ? round($stats['trk_clicks'] / $stats['src_visits'] * 100) : 0; // 0.00%
             $aTotal[$date]['roi'] = ($stats['cost']) ? round($stats['profit'] / $stats['cost'] * 100) : 0;
             $aTotal[$date]['epv'] = ($stats['src_visits']) ? round($stats['revenue'] / $stats['src_visits'], 4) : 0;
+            $aTotal[$date]['trk_epv'] = ($stats['trk_visits']) ? round($stats['revenue'] / $stats['trk_visits'], 4) : 0;
         }
         $aTotalDates = array();
         foreach($aTotal as $date => $stats) {

@@ -222,6 +222,7 @@ class CollectDataTask extends AppShell {
                             'ctr' => ($campaign['src_visits']) ? round(intval($row['clicks']) / $campaign['src_visits'] * 100) : 0, // 0.00%
                             'roi' => ($campaign['cost']) ? round($profit / $campaign['cost'] * 100) : 0,
                             'epv' => ($campaign['src_visits']) ? floatval($row['revenue']) / $campaign['src_visits'] : 0,
+                            'trk_epv' => ($campaign['trk_visits']) ? floatval($row['revenue']) / $campaign['trk_visits'] : 0,
                             'is_trk_data' => true,
                             'trk_data' => serialize($row)
                         );
@@ -282,6 +283,7 @@ class CollectDataTask extends AppShell {
                             'campaign_id' => $campaign['id'],
                             'domain_id' => $aDomainID[$domain_uid],
                             'src_visits' => intval($stats['uniques']),
+                            // 'src_clicks' => intval($stats['uniques']),
                             'cost' => floatval($stats['amount']),
                             'src_data' => serialize($stats),
                             'is_trk_data' => false
@@ -299,6 +301,7 @@ class CollectDataTask extends AppShell {
                             $data['ctr'] = ($data['src_visits']) ? round(intval($row['clicks']) / $data['src_visits'] * 100) : 0; // 0.00%
                             $data['roi'] = ($data['cost']) ? round($profit / $data['cost'] * 100) : 0;
                             $data['epv'] = ($data['src_visits']) ? floatval($row['revenue']) / $data['src_visits'] : 0;
+                            $data['trk_epv'] = ($data['trk_visits']) ? floatval($row['revenue']) / $data['trk_visits'] : 0;
                             $data['trk_data'] = serialize($row);
                             $data['is_trk_data'] = true;
                         }

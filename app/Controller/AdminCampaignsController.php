@@ -13,8 +13,9 @@ class AdminCampaignsController extends AdminController {
     public $paginate = array(
         'conditions' => array(),
         'fields' => array(
-            'src_type', 'src_id', 'src_name', 'url', 'active', 'status', 'bid', 'src_visits', 'trk_clicks',
-            'conversion', 'revenue', 'cost', 'profit', 'cpv', 'ctr', 'roi', 'epv', 'trk_data'
+            'src_type', 'src_id', 'src_name', 'url', 'active', 'status', 'bid',
+            'src_visits', 'trk_visits', 'src_clicks', 'trk_clicks',
+            'conversion', 'revenue', 'cost', 'profit', 'cpv', 'ctr', 'roi', 'epv', 'trk_epv', 'trk_data'
         ),
         'order' => array('created' => 'desc'),
         'limit' => 10
