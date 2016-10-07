@@ -13,11 +13,17 @@ class AdminAjaxController extends PAjaxController {
 			if (!($ids & is_array($ids))) {
 				throw new Exception('Incorrect request parameter `ids`');
 			}
+			$from = $this->request->data('from');
+			$to = $this->request->data('to');
+			if (!$from) {
+				throw new Exception('Incorrect request parameter `from`');
+			}
+
 			$this->CampaignStats = $this->loadModel('CampaignStats');
-			$stats = $this->CampaignStats->getSummaryStats($ids, $this->request->data('from'), $this->request->data('to'));
+			$stats = $this->CampaignStats->getSummaryStats($ids, $from, $to);
 
 			$this->DomainStats = $this->loadModel('DomainStats');
-			$domainStats = $this->DomainStats->getTotalStats($ids, $this->request->data('from'), $this->request->data('to'));
+			$domainStats = $this->DomainStats->getTotalStats($ids, $from, $to);
 
 			$domains = $this->loadModel('Domain')->getOptions(array_keys($domainStats));
 			$this->setResponse(compact('stats', 'domainStats', 'domains'));

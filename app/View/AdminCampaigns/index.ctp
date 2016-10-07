@@ -3,20 +3,31 @@
 <script src="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap-daterangepicker/moment.min.js" type="text/javascript"></script>
 <script src="http://<?=Configure::read('domain.url')?>/assets/global/plugins/bootstrap-daterangepicker/daterangepicker2.js" type="text/javascript"></script>
 <style>
-	.daterangepicker_input .input-mini { width: 100% !important;}
+	.daterangepicker_input .input-mini {
+		width: 100% !important;
+	}
 	.daterangepicker td.start-date {
 		border-radius: 4px 0 0 4px !important;
 	}
 	.daterangepicker td.end-date {
 		border-radius: 0 4px 4px 0 !important;
 	}
-	/* .dataTable tbody td:nth-child(2), td:nth-child(3), td:nth-child(5), td:nth-child(6), td:nth-child(7) { white-space: nowrap; } */
-	table.dataTable tbody tr th, table.dataTable tbody tr td {
-		padding: 8px 4px;
+	#reportrange {
+		background: #fff;
+		cursor: pointer;
+		padding: 5px 10px;
+		border: 1px solid #ccc;
+		width: 230px;
+	}
+	table.dataTable > thead > tr > th, table.dataTable > tbody > tr > td {
+		padding: 8px 4px !important;
 		vertical-align: middle;
 	}
-	.dataTable tbody td:nth-child(16) { padding: 0; }
-	.table > thead > tr > th.grid-x-header {border-bottom: 1px solid #e7ecf1; text-align: center;}
+	.dataTable tbody td:nth-child(16) { padding: 0; } /* for trend graph */
+	.table > thead > tr > th.grid-x-header {
+		border-bottom: 1px solid #e7ecf1;
+		text-align: center;
+	}
 	.filter-list-header {font-weight: bold; margin: 10px 0 5px 0;}
 	.filter-list-item {margin: 3px 0;}
 	.portlet.portlet-mini.light .portlet-body {padding-top: 0;}
@@ -147,14 +158,8 @@
 		'autocomplete' => 'off'
 	));
 ?>
-								<button type="submit" class="btn btn-success pull-right" style="margin-left: 10px;"> <i class="fa fa-search"></i> Find </button>
-								<div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 250px">
-									<i class="fa fa-calendar"></i>&nbsp;
-									<span></span> <b class="caret"></b>
-								</div>
+								<button type="submit" class="btn btn-success"> <i class="fa fa-search"></i> Find </button>
 <?
-	echo $this->PHForm->hidden('from', array('value' => $from));
-	echo $this->PHForm->hidden('to', array('value' => $to));
 	echo $this->PHForm->end();
 ?>
 							</div>
@@ -173,9 +178,18 @@
 	);
 ?>
 			<div class="tabbable-bordered">
-				<div class="pull-right">
+				<div class="pull-right" style="margin-left: 10px;">
 					<button type="button" class="btn btn-success" onclick="updateCharts()"> <i class="fa fa-refresh"></i> Update stats.</button>
 				</div>
+				<div id="reportrange" class="pull-right">
+					<i class="fa fa-calendar"></i>&nbsp;
+					<span></span> <b class="caret"></b>
+				</div>
+<?
+	echo $this->PHForm->hidden('from', array('value' => $from, 'id' => 'FilterFrom'));
+	echo $this->PHForm->hidden('to', array('value' => $to, 'id' => 'FilterTo'));
+?>
+
 				<?=$this->element('AdminUI/tabs', compact('tabs'))?>
 			</div>
 <?
@@ -308,7 +322,7 @@ $(function(){
 		}
 	}, function(start, end, label){
 		showDateRange(start, end);
-		$('#filterForm').submit();
+		// $('#filterForm').submit();
 	});
 
 	timer = null;
