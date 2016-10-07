@@ -165,7 +165,7 @@
 				<?=$this->PHTableGrid->render('Campaign', compact('checkboxes', 'columns', 'rowset', 'row_actions'))?>
 			</div>
 <?
-	echo $this->PHForm->create('Campaign');
+	//echo $this->PHForm->create('Campaign');
 	$tabs = array(
 		'Graphs' => $this->element('../AdminCampaigns/_graphs'),
 		'Summary Report' => $this->element('../AdminCampaigns/_report'),
@@ -179,7 +179,7 @@
 				<?=$this->element('AdminUI/tabs', compact('tabs'))?>
 			</div>
 <?
-	echo $this->PHForm->end();
+	//echo $this->PHForm->end();
 ?>
 		</div>
 	</div>

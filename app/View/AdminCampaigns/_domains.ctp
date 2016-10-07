@@ -4,8 +4,6 @@
     <div id="domains-report"></div>
 </div>
 <script type="text/javascript">
-
-
 var domainsGrid, columns, domains;
 $(function(){
     function formatDomainName(domain, row) {
@@ -52,38 +50,21 @@ $(function(){
         {key: 'epv', label: 'EPV', render: formatPrice}
     ];
 
-    // $('#domains-filter').html(tmpl('tmpl-domains-add-filter'));
-
-    // domainsGrid = new DomainListGrid();
-    domainsGrid = new TableGrid();
+    domainsGrid = new DomainListGrid();
     domainsGrid.init('#domains-report', columns);
-    var parent = {};
-/*
-    var parent_renderHeader = domainsGrid.renderHeader;
-    domainsGrid.renderHeader = function() {
-        var html = Format.tag('tr', null,
-            Format.tag('th', {colspan: 10, class: 'grid-x-header'}, 'Tracker') + Format.tag('th', {colspan: 3, class: 'grid-x-header'}, 'PlugRush.com')
-        );
-        return html + parent_renderHeader();
-    };
-*/
-    /*
-    var parent_render = domainsGrid.render;
-    domainsGrid.render = function() {
-        parent_render();
-        JSON.iterate(columns, function(col){
-            if (col.key != 'domain') {
-                $('#domainfilter select#cols').append(Format.tag('option', {value: col.key}, col.label));
-            }
-        });
-    };
-    */
 });
 </script>
 
 <script type="text/x-tmpl" id="tmpl-domains-filter">
     <form id="domainFilter" class="form-inline">
+        <div class="form-group" style="{%=(o.filters.length ? '' : 'display: none')%}">
+            <select id="filterOper" class="form-control input-xsmall">
+                <option value="and">AND</option>
+                <option value="or">OR</option>
+            </select>
+        </div>
         <div class="form-group">
+
             <select id="cols" class="form-control input-small">
 {%
     JSON.iterate(o.columns, function(col){
@@ -109,11 +90,7 @@ $(function(){
         </div>
         <div class="form-group filterOptions">
             <span class="filter-options filter-options-default">
-                <input type="text" class="form-control input-xsmall" />
-            </span>
-            <span class="filter-options filter-options-range" style="display: none;">
-                from <input type="text" class="form-control input-xsmall" name="from" />
-                to <input type="text" class="form-control input-xsmall" name="to" />
+                <input type="text" class="form-control input-xsmall" onkeyup="$(this).parent().parent().removeClass('has-error')"/>
             </span>
         </div>
         <button type="button" class="btn btn-success" onclick="domainsGrid.addFilter()">
@@ -130,12 +107,8 @@ $(function(){
         var filter = o.filters[i];
         var col = JSON.getBy(o.columns, 'key', filter.col);
         var rule = JSON.getBy(o.rules, 'key', filter.rule);
-        var filterStr;
-        if (filter.rule == 'range') {
-            filterStr = filter.options.from + ' &le; ' + col.label + ' &le; ' + filter.options.to;
-        } else {
-            filterStr = col.label + ' ' + rule.label + ' ' + filter.options;
-        }
+        var filterStr = (i > 0) ? filter.oper.toUpperCase() + ' ' : '';
+        filterStr+= col.label + ' ' + rule.label + ' ' + filter.options;
 %}
     <div class="filter-list-item">
         <a class="font-red-thunderbird" href="javascript:;" onclick="domainsGrid.removeFilter({%=i%})"><i class="fa fa-remove"></i></a> {%#filterStr%}
