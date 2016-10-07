@@ -23,7 +23,7 @@ var DomainListGrid = function() {
 		$('#domains-filter').html(Tmpl('domains-filter').render(self));
 		var html = Format.tag('table', {class: 'table table-striped table-bordered table-hover table-header-fixed dataTable'},
 			Format.tag('thead', null, this.renderHeader()) + Format.tag('tbody', null, this.renderBody())
-		) + 'Total: ' + self.data.length + ' domains';
+		) + 'Total: <b>' + self.data.length + '</b> domain(s)';
 		self.$.html(html);
 		this.initHandlers();
 	};
