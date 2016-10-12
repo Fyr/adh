@@ -1,8 +1,9 @@
 <?
 App::uses('AppShell', 'Console/Command');
 App::uses('Task', 'Model');
+App::uses('Campaign', 'Model');
 class BkgServiceShell extends AppShell {
-    public $uses = array('Task');
+    public $uses = array('Task', 'Campaign');
 
     public function collectData() {
         $id = $this->Task->add(0, 'CollectData');
@@ -12,8 +13,13 @@ class BkgServiceShell extends AppShell {
     }
 
     public function dailyStats() {
-        $date = (isset($this->args[0])) ? $this->args[0] : date('Y-m-d'); // given date or today by default
-        $id = $this->Task->add(0, 'DailyStats', array('stat_date' => $date));
+        $stat_date = (isset($this->args[0])) ? $this->args[0] : date('Y-m-d', time() - DAY); // given date or yesterday by default
+        if (isset($this->args[1])) {
+            $campaign_ids = array($this->args[1]);
+        } else {
+            $campaign_ids = Hash::extract($this->Campaign->findAllByActive(1, array('id')), '{n}.Campaign.id');
+        }
+        $id = $this->Task->add(0, 'DailyStats', compact('stat_date', 'campaign_ids'));
         $this->args[0] = $id;
         $this->execTask();
         $this->Task->close($id);

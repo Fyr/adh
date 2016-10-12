@@ -7,21 +7,22 @@ App::uses('Task', 'Model');
 App::uses('Campaign', 'Model');
 App::uses('CampaignStats', 'Model');
 class DailyStatsTask extends AppShell {
-    public $uses = array('Settings', 'Task', 'Campaign', 'CampaignStats', 'DailyCampaignStats');
+    public $uses = array('Task', 'Campaign', 'CampaignStats', 'DailyCampaignStats');
 
     public function execute() {
-        $this->Settings->initData();
-
         $stat_date = $this->params['stat_date'];
-        $aCampaigns = $this->Campaign->findAllByActive(1);
-        $this->Task->setProgress($this->id, 0, count($aCampaigns));
+        $campaign_ids = $this->params['campaign_ids'];
+
+        $this->Task->setProgress($this->id, 0, count($this->params['campaign_ids']));
         $this->Task->setStatus($this->id, Task::RUN);
-        foreach($aCampaigns as $i => $campaign) {
+        $i = 0;
+        foreach($campaign_ids as $campaign_id) {
             if ($this->Task->getStatus($this->id) == Task::ABORT) {
                 throw new Exception(__('Processing was aborted by user'));
             }
 
-            $this->_processCampaign($campaign['Campaign']['id'], $stat_date);
+            $this->_processCampaign($campaign_id, $stat_date);
+
             $this->Task->setProgress($this->id, ++$i);
             $this->Task->saveStatus($this->id);
         }
