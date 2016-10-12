@@ -17,7 +17,7 @@
 		cursor: pointer;
 		padding: 5px 10px;
 		border: 1px solid #ccc;
-		width: 230px;
+		width: 250px;
 	}
 	table.dataTable > thead > tr > th, table.dataTable > tbody > tr > td {
 		padding: 8px 4px !important;

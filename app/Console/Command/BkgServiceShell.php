@@ -11,6 +11,14 @@ class BkgServiceShell extends AppShell {
         $this->Task->close($id);
     }
 
+    public function dailyStats() {
+        $date = (isset($this->args[0])) ? $this->args[0] : date('Y-m-d'); // given date or today by default
+        $id = $this->Task->add(0, 'DailyStats', array('stat_date' => $date));
+        $this->args[0] = $id;
+        $this->execTask();
+        $this->Task->close($id);
+    }
+
     public function execTask() {
         ignore_user_abort(true);
         set_time_limit(0);

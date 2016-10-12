@@ -12,7 +12,7 @@ function updateCharts() {
             $('#ajax-loader').hide();
             if (checkJson(response)) {
                 $('#charts').html('<div style="border: 1px solid #e5e5e5; height: 400px;"></div>');
-                renderCharts(getChartsData(response.data.stats.byHours));
+                renderCharts(getChartsData(response.data.stats));
                 renderReports(response);
 
             }
@@ -25,7 +25,7 @@ function updateCharts() {
 }
 
 function renderReports(response) {
-    $('#summary-report').html(Tmpl('summary-report').render(response.data.stats.byDates));
+    $('#summary-report').html(Tmpl('summary-report').render(response.data.stats));
     aData = [];
     for(var domain_id in response.data.domainStats) {
         row = response.data.domainStats[domain_id];

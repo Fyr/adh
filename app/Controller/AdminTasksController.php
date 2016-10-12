@@ -25,4 +25,17 @@ class AdminTasksController extends AdminController {
         }
         $this->redirect(array('action' => 'index'));
     }
+
+    /*
+    public function dailyStats() {
+        $task = $this->Task->getActiveTask('CollectData');
+        if ($task) {
+            $this->Flash->success(__('Task is already running'));
+        } else {
+            $this->runBkg('BkgService collectData');
+            sleep(1);
+        }
+        $this->redirect(array('action' => 'index'));
+    }
+    */
 }

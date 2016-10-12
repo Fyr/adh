@@ -91,7 +91,8 @@ class CollectDataTask extends AppShell {
             // $data['src_clicks'] = intval($row['traffic_received']);
             $data['cost'] = floatval($row['spent']);
             $data['src_data'] = serialize($row);
-            if ($data['active']) {
+            if ($data['active']) { // сбрасываем флаг для активных кампаний
+                $data['is_trk_data'] = 0;
                 $data['trk_data'] = null;
             }
             $this->Campaign->clear();
@@ -175,7 +176,8 @@ class CollectDataTask extends AppShell {
                 $aUIDs[] = $uid;
             }
         }
-        $aCampaigns = $this->Campaign->findAllBySrcTypeAndSrcUid(array_keys($aTrkData), $aUIDs);
+
+        $aCampaigns = $this->_getCampaignList(array_keys($aTrkData), 1, $aUIDs);
         $aSrcData = array();
         // Получить массив кампаний-источников в разрезе src_id для связывания по трэкеру
         foreach($aCampaigns as $campaign) {
@@ -223,7 +225,7 @@ class CollectDataTask extends AppShell {
                             'roi' => ($campaign['cost']) ? round($profit / $campaign['cost'] * 100) : 0,
                             'epv' => ($campaign['src_visits']) ? floatval($row['revenue']) / $campaign['src_visits'] : 0,
                             'trk_epv' => ($campaign['trk_visits']) ? floatval($row['revenue']) / $campaign['trk_visits'] : 0,
-                            'is_trk_data' => true,
+                            'is_trk_data' => 1, // получили данные - выставляем флаг, в противном случае - он или 0 или предыдущий
                             'trk_data' => serialize($row)
                         );
 
@@ -246,13 +248,20 @@ class CollectDataTask extends AppShell {
         $this->Task->setStatus($subtask_id, Task::DONE);
     }
 
-    private function _getCampaignList($src_type) {
-        $aData = $this->Campaign->findAllBySrcType($src_type, array('id', 'src_id', 'src_uid', 'url'));
+    private function _getCampaignList($src_type, $active = null, $src_uid = null) {
+        $conditions = array('src_type' => $src_type);
+        if (!is_null($active)) {
+            $conditions['active'] = $active;
+        }
+        if (!is_null($src_uid)) {
+            $conditions['src_uid'] = $src_uid;
+        }
+        $aData = $this->Campaign->find('all', compact('conditions'));
         return $aData;
     }
 
     private function _processPlugrushDomains($subtask_id) {
-        $aCampaigns = $this->_getCampaignList(PlugrushApi::TYPE);
+        $aCampaigns = $this->_getCampaignList(PlugrushApi::TYPE, 1);
         $aSrcData = array();
         $aTrkData = array();
 
