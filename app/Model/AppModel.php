@@ -63,4 +63,17 @@ class AppModel extends Model {
         }
     }
 
+    protected function _adjustDateRange($from, $to = 0) {
+        $from = (is_numeric($from)) ? $from : strtotime($from);
+        $from = strtotime(date('Y-m-d 00:00:00', $from));
+
+        if ($to) {
+            $to = (is_numeric($to)) ? $to : strtotime($to);
+            $to = strtotime(date('Y-m-d 23:59:59', $to));
+        } else {
+            $to = strtotime(date('Y-m-d 23:59:59'));
+        }
+        return compact('from', 'to');
+    }
+
 }

@@ -297,9 +297,9 @@ $(function() {
 			'roi' => array()
 		);
 		foreach($stats as $row) {
-			$data['categories'][] = date('d.m H:i', strtotime($row['created']));
-			$data['visits'][] = intval($row['src_visits']);
-			$data['roi'][] = intval($row['roi']);
+			$data['categories'][] = date('M d', strtotime($row['stat_date']));
+			$data['visits'][] = intval($row['d_src_visits']);
+			$data['roi'][] = intval($row['d_roi']);
 		}
 ?>
 	var data = <?=json_encode($data)?>;

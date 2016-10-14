@@ -7,7 +7,7 @@ App::uses('PlugrushApi', 'Model');
 App::uses('PopadsApi', 'Model');
 class AdminCampaignsController extends AdminController {
     public $name = 'AdminCampaigns';
-    public $uses = array('Campaign', 'PlugrushApi', 'Settings', 'CampaignGroup', 'CampaignStats');
+    public $uses = array('Campaign', 'PlugrushApi', 'Settings', 'CampaignGroup', 'DailyCampaignStats');
     public $helpers = array('Price');
 
     public $paginate = array(
@@ -47,7 +47,8 @@ class AdminCampaignsController extends AdminController {
         $aRowset = $this->PCTableGrid->paginate('Campaign');
         $ids = Hash::extract($aRowset, '{n}.Campaign.id');
 
-        $this->set('aStats', $this->CampaignStats->getStats($ids, time() - DAY * 7));
+        $stats = $this->DailyCampaignStats->getStats($ids, time() - DAY * 7);
+        $this->set('aStats', $stats);
 
         $options = array('Today', 'Yesterday', 'Last 7 days', 'Last 14 days', 'Last 30 days');
         $this->set('datesOptions', $options);

@@ -1,3 +1,4 @@
+<div id="d_charts"></div>
 <div id="charts"></div>
 <script type="text/javascript">
 function updateCharts() {
@@ -11,15 +12,16 @@ function updateCharts() {
         $.post(url, {data: {ids: vals, from: $('#FilterFrom').val(), to: $('#FilterTo').val()}}, function (response) {
             $('#ajax-loader').hide();
             if (checkJson(response)) {
-                $('#charts').html('<div style="border: 1px solid #e5e5e5; height: 400px;"></div>');
-                renderCharts(getChartsData(response.data.stats));
+                $('#charts, #d_charts').html('<div style="border: 1px solid #e5e5e5; height: 400px; margin-bottom: 20px;"></div>');
+                renderCharts('#d_charts div', getChartsData(response.data.stats, 'd_'), 'Daily Traffic Chart');
+                renderCharts('#charts div', getChartsData(response.data.stats, ''), 'Summary Traffic Chart');
                 renderReports(response);
-
             }
         });
         return true;
     } else {
-        $('#charts, #summary-report, #domains-report').html('<div style="margin: 30px 0; text-align: center;">- Please, select campaigns -</div>');
+        $('#d_charts, #summary-report, #domains-report').html('<div style="margin: 30px 0; text-align: center;">- Please, select campaigns -</div>');
+        $('#charts').html('<div />');
         return false;
     }
 }
@@ -38,8 +40,9 @@ function renderReports(response) {
     // domainsGrid.initFilter();
 }
 
-function getChartsData(stats) {
+function getChartsData(stats, d_) {
     var data = {};
+
     data.xAxis = [];
 
     data.visits = [];
@@ -62,31 +65,32 @@ function getChartsData(stats) {
         }
         data.endDate = moment(date);
 
-        data.xAxis.push(date);
+        data.xAxis.push(moment(date).format('MMM D'));
 
-        data.visits.push(parseInt(stats[date].src_visits));
-        data.clicks.push(parseInt(stats[date].trk_clicks));
-        data.conversion.push(parseFloat(stats[date].conversion));
+        data.visits.push(parseInt(stats[date][d_ + 'src_visits']));
+        data.clicks.push(parseInt(stats[date][d_ + 'trk_clicks']));
+        data.conversion.push(parseFloat(stats[date][d_ + 'conversion']));
 
-        data.cost.push(parseFloat(stats[date].cost));
-        data.revenue.push(parseFloat(stats[date].revenue));
-        data.profit.push(parseFloat(stats[date].profit));
+        data.cost.push(parseFloat(stats[date][d_ + 'cost']));
+        data.revenue.push(parseFloat(stats[date][d_ + 'revenue']));
+        data.profit.push(parseFloat(stats[date][d_ + 'profit']));
 
-        data.ctr.push(parseInt(stats[date].ctr));
-        data.roi.push(parseInt(stats[date].roi));
+        data.ctr.push(parseInt(stats[date][d_ + 'ctr']));
+        data.roi.push(parseInt(stats[date][d_ + 'roi']));
 
-        data.epv.push(parseFloat(stats[date].epv));
+        data.epv.push(parseFloat(stats[date][d_ + 'epv']));
     }
+    console.log(data);
     return data;
 }
 
-function renderCharts(data) {
+function renderCharts(e, data, title) {
     var options = {
         chart: {
             zoomType: 'xy'
         },
         title: {
-            text: 'Summary Traffic Chart',
+            text: title,
             x: -20 //center
         },
         subtitle: {
@@ -230,6 +234,6 @@ function renderCharts(data) {
             enabled: false
         },
     };
-    $('#charts div').highcharts(options);
+    $(e).highcharts(options);
 }
 </script>

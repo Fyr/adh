@@ -2,22 +2,9 @@
 App::uses('AppModel', 'Model');
 class CampaignStats extends AppModel {
 
-    private function _adjustDatetimeRange($from = 0, $to = 0) {
-        if ($from) {
-            $from = (is_numeric($from)) ? $from : strtotime($from);
-            $from = strtotime(date('Y-m-d 00:00:00', $from));
-        }
-
-        if ($to) {
-            $to = (is_numeric($to)) ? $to : strtotime($to);
-            $to = strtotime(date('Y-m-d 23:59:59', $to));
-        }
-        return compact('from', 'to');
-    }
-
     public function getStats($campaign_ids, $from = '', $to = '') {
         $conditions = array('campaign_id' => $campaign_ids);
-        $range = $this->_adjustDatetimeRange($from, $to);
+        $range = $this->_adjustDateRange($from, $to);
         if ($range['from']) {
             $conditions['created >= '] = date('Y-m-d H:i:s', $range['from']);
         }
@@ -53,21 +40,8 @@ class CampaignStats extends AppModel {
     }
 
     public function getSummaryStats($campaign_ids, $from = '', $to = '') {
-        /*
-         * Алг-тм подсчета суммарной статистики:
-         * 1. Собираем все данные
-         * 2. Группируем записи по часам - для точности (можно просто по дням, будет менее точнее)
-         * 3. Отбираем первую запись из группы, т.к. может быть несколько записей за 1 час (напр. запустили вручную)
-         *    Нельзя просто выбрать данные в NN:00, т.к. последние данные могут придти в NN:01
-         * 4. По этой записи берем все стат.данные, остальные - заново вычисляем
-         *    Нельзя брать просто средние значения, т.к. для этих показателей могут быть разные веса
-         * 5. Если данных нету ДО нужного часа (нужнoй даты), то считаем что данные нулевые
-         *    (скорее всего кампания еще не началась, вряд ли нет данных с нужной даты из-за ошибок API)
-         * 6. Если данных нет ПОСЛЕ нужного часа, мы используем последние актуальные данные
-         */
         $aStats = $this->_getStatsByDays($campaign_ids, $from, $to);
-        fdebug($aStats, 'tmp1.log');
-        $range = $this->_adjustDatetimeRange($from, $to);
+        $range = $this->_adjustDateRange($from, $to);
         $fields = array('src_visits', 'trk_visits', 'src_clicks', 'trk_clicks', 'conversion', 'revenue', 'cost', 'profit', 'cpv', 'ctr', 'roi', 'epv', 'trk_epv');
         $aTotal = array();
         foreach($campaign_ids as $campaign_id) {

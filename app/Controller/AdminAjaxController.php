@@ -19,14 +19,15 @@ class AdminAjaxController extends PAjaxController {
 				throw new Exception('Incorrect request parameter `from`');
 			}
 
-			$this->CampaignStats = $this->loadModel('CampaignStats');
-			$stats = $this->CampaignStats->getSummaryStats($ids, $from, $to);
+			$this->DailyCampaignStats = $this->loadModel('DailyCampaignStats');
+			$stats = $this->DailyCampaignStats->getSummaryStats($ids, $from, $to);
 
 			$this->DomainStats = $this->loadModel('DomainStats');
 			$domainStats = $this->DomainStats->getTotalStats($ids, $from, $to);
 
 			$domains = $this->loadModel('Domain')->getOptions(array_keys($domainStats));
 			$this->setResponse(compact('stats', 'domainStats', 'domains'));
+
 
 		} catch (Exception $e) {
 			$this->setError($e->getMessage());
