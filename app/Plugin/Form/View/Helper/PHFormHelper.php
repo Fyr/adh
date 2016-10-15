@@ -16,7 +16,7 @@ class PHFormHelper extends FormHelper {
 			if ($options['class'] == 'form-horizontal') {
 				$options['inputDefaults'] = (isset($options['inputDefaults']) && $options['inputDefaults']) ? $options['inputDefaults'] : array(
 					'div' => 'form-group',
-					'class' => 'form-control',
+					'class' => 'form-control input-xlarge',
 					'label' => array('class' => 'col-md-3 control-label'),
 					'between' => '<div class="col-md-9">',
 					'after' => '</div>',
