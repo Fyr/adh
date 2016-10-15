@@ -24,8 +24,8 @@ class AdminController extends AppController {
 		$this->set('isAdmin', $this->isAdmin());
 		$this->set('lang', 'eng');
 
-		$aSrcGroups = $this->loadModel('CampaignGroup')->find('all', array('order' => 'CampaignGroup.sorting'));
-		$this->set(compact('aSrcGroups'));
+		// $aSrcGroups = $this->loadModel('CampaignGroup')->find('all', array('order' => 'CampaignGroup.sorting'));
+		// $this->set(compact('aSrcGroups'));
 	}
 	
 	public function isAdmin() {
