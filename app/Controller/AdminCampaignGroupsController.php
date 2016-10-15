@@ -13,8 +13,8 @@ class AdminCampaignGroupsController extends AdminController {
 
     public function index() {
         $this->PCTableGrid->paginate('CampaignGroup');
-        $aCampaigns = $this->Campaign->getSourceList();
-        $aCampaigns = Hash::combine($aCampaigns, '{n}.id', '{n}');
+        $aCampaigns = $this->Campaign->getList();
+        $aCampaigns = Hash::combine($aCampaigns, '{n}.Campaign.id', '{n}.Campaign');
         $this->set(compact('aCampaigns'));
     }
 
@@ -40,7 +40,8 @@ class AdminCampaignGroupsController extends AdminController {
             }
         }
 
-        $aCampaigns = $this->Campaign->getSourceList();
+        $aCampaigns = $this->Campaign->getList();
+        $aCampaigns = Hash::combine($aCampaigns, '{n}.Campaign.id', '{n}.Campaign');
         $this->set(compact('aCampaigns'));
     }
 }

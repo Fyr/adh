@@ -22,17 +22,7 @@
         'title' => array('key' => 'title', 'label' => 'Title', 'format' => 'string')
     );
     foreach($aCampaigns as &$row) {
-        $attrs = array('title' => $row['url']);
-        $src_type = Configure::read($row['src_type'].'.title');
-        $icon = $this->Html->image('logo_'.$row['src_type'].'.png', array(
-            'class' => 'logo-service',
-            'alt' => $src_type
-        ));
-        $class = ($row['active']) ? 'font-green-jungle' : 'font-red-thunderbird';
-        $row['title'] = implode('<br />', array(
-            $icon.' '.$src_type.' #'.$row['src_id'].' '.$row['src_name'].' ('.$this->Html->tag('span', $row['status'], compact('class')).')',
-            $this->Html->link(substr($row['url'], 0, 80).'...', $row['url'], $attrs)
-        ));
+        $row['title'] = $this->element('campaign_item', array('campaign' => $row));
     }
 
     $tabs = array(

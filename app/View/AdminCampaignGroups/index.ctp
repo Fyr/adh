@@ -1,6 +1,3 @@
-<style>
-	.item {margin-bottom: 10px;}
-</style>
 <?
 	$breadcrumbs = array(
 		__('Campaigns') => 'javascript:;',
@@ -15,24 +12,7 @@
 	$rowset = $this->PHTableGrid->getDefaultRowset('CampaignGroup');
 	foreach($rowset as &$_row) {
 		$ids = explode(',', $_row['CampaignGroup']['campaign_ids']);
-		$items = array();
-		foreach($ids as $id) {
-			$row = $aCampaigns[$id];
-			$attrs = array('title' => $row['url']);
-			$src_type = Configure::read($row['src_type'].'.title');
-			$icon = $this->Html->image('logo_'.$row['src_type'].'.png', array(
-				'class' => 'logo-service',
-				'alt' => $src_type
-			));
-			$class = ($row['active']) ? 'font-green-jungle' : 'font-red-thunderbird';
-			$title = implode('<br />', array(
-				$icon.' '.$src_type.' #'.$row['src_id'].' '.$row['src_name'].' ('.$this->Html->tag('span', $row['status'], compact('class')).')',
-				$this->Html->link(substr($row['url'], 0, 80).'...', $row['url'], $attrs)
-			));
-			$items[] = $this->Html->div('item', $title);
-		}
-
-		$_row['CampaignGroup']['campaign_ids'] = implode('', $items);
+		$_row['CampaignGroup']['campaign_ids'] = $this->element('campaign_list', compact('ids', 'aCampaigns'));
 	}
 ?>
 <div class="row">

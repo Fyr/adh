@@ -62,16 +62,4 @@ class AdminCampaignsController extends AdminController {
         );
         $this->set(compact('aGroupOptions', 'aTypeOptions'));
     }
-
-    public function view($id) {
-        $aCampaigns = $this->Campaign->getList();
-        if (!isset($aCampaigns[$id])) {
-            $this->Flash->error(__('Incorrect campaign ID'));
-            return $this->redirect(array('action' => 'index'));
-        }
-
-        $campaign = $aCampaigns[$id];
-        $this->set(compact('campaign'));
-    }
-
 }

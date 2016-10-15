@@ -2,14 +2,17 @@
 App::uses('AppController', 'Controller');
 App::uses('AdminController', 'Controller');
 App::uses('AdminContentController', 'Controller');
+App::uses('DomainList', 'Model');
+App::uses('DomainListDetails', 'Model');
 App::uses('ListType', 'Model');
+App::uses('Campaign', 'Model');
 class AdminDomainListsController extends AdminController {
     public $name = 'AdminDomainLists';
-    public $uses = array('DomainList', 'ListType', 'DomainListDetails');
+    public $uses = array('DomainList', 'ListType', 'DomainListDetails', 'Campaign');
 
     public $paginate = array(
         'conditions' => array(),
-        'fields' => array('list_type', 'title', 'sorting'),
+        'fields' => array('list_type', 'campaign_id', 'title', 'sorting'),
         'order' => array('sorting' => 'asc'),
         'limit' => 20
     );
@@ -37,13 +40,18 @@ class AdminDomainListsController extends AdminController {
     public function index() {
         $this->_processFilter();
         $aRowset = $this->PCTableGrid->paginate('DomainList');
-        $list_ids = Hash::extract($aRowset, '{n}.DomainList.id');
 
+        $campaign_ids = Hash::extract($aRowset, '{n}.DomainList.campaign_id');
+        $aCampaigns = $this->Campaign->getList($campaign_ids);
+        $aCampaigns = Hash::combine($aCampaigns, '{n}.Campaign.id', '{n}.Campaign');
+
+        $list_ids = Hash::extract($aRowset, '{n}.DomainList.id');
         $conditions = array('list_id' => $list_ids);
         $order = array('list_id' => 'asc', 'domain' => 'asc');
         $aDomains = $this->DomainListDetails->find('all', compact('conditions', 'order'));
         $aDomains = Hash::combine($aDomains, '{n}.DomainListDetails.id', '{n}.DomainListDetails.domain', '{n}.DomainListDetails.list_id');
-        $this->set(compact('aDomains'));
+
+        $this->set(compact('aCampaigns', 'aDomains'));
     }
 
     public function edit($id = 0) {

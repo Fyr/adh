@@ -9,6 +9,7 @@
 
 	$columns = $this->PHTableGrid->getDefaultColumns('DomainList');
 	$columns['DomainList.list_type']['format'] = 'string';
+	$columns['DomainList.campaign_id']['format'] = 'string';
 	$columns['DomainList.domains'] = array(
 		'key' => 'DomainList.domains',
 		'label' => __('Domains'),
@@ -27,6 +28,10 @@
 			'label' => 'domain(s)',
 			'class' => $class
 		));
+
+		$_row['DomainList']['campaign_id'] = ($row['campaign_id'])
+			? $this->element('campaign_item', array('campaign' => $aCampaigns[$row['campaign_id']]))
+			: '<b>Global list</b>';
 	}
 ?>
 <div class="row">
