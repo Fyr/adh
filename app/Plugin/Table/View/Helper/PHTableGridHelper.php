@@ -14,7 +14,8 @@ class PHTableGridHelper extends AppHelper {
 	}
 
 	public function getDefaultRowset($modelName) {
-		return $this->viewVar('_paginate.'.$modelName.'._rowset');
+		$rowset = $this->viewVar('_paginate.'.$modelName.'._rowset');
+		return ($rowset) ? $rowset : array();
 	}
 
 	public function render($modelName, $options = array()) {
