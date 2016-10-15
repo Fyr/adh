@@ -47,40 +47,19 @@
 				</li>
 				<li class="dropdown dropdown-user">
 					<a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-						<span class="username username-hide-on-mobile"> <i class="fa fa-list"></i> <?=__('Lists')?> </span>
-						<i class="fa fa-angle-down"></i>
-					</a>
-					<ul class="dropdown-menu dropdown-menu-default">
-						<li>
-							<a href="<?=$this->Html->url(array('controller' => 'AdminListTypes', 'action' => 'index'))?>">
-								<i class="fa fa-list"></i> <?=__('List types')?>
-							</a>
-						</li>
-<?
-	App::uses('ListType', 'Model');
-?>
-						<li>
-							<a href="<?=$this->Html->url(array('controller' => 'AdminLists', 'action' => 'index', ListType::WHITE))?>">
-								<i class="fa fa-list"></i> <?=__('White lists')?>
-							</a>
-						</li>
-						<li>
-							<a href="<?=$this->Html->url(array('controller' => 'AdminLists', 'action' => 'index', ListType::BLACK))?>">
-								<i class="fa fa-list"></i> <?=__('Black lists')?>
-							</a>
-						</li>
-					</ul>
-				</li>
-				<li class="dropdown dropdown-user">
-					<a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
 						<!-- img alt="" class="img-circle" src="http://<?=Configure::read('domain.url')?>/assets/layouts/layout/img/avatar3_small.jpg" /-->
 						<span class="username username-hide-on-mobile"> <i class="icon-settings"></i> System </span>
 						<i class="fa fa-angle-down"></i>
 					</a>
 					<ul class="dropdown-menu dropdown-menu-default">
-						<li>
+						<!--li>
 							<a href="<?=$this->Html->url(array('controller' => 'AdminUsers', 'action' => 'edit', 1))?>">
 								<i class="icon-user"></i> <?=__('Admin profile')?>
+							</a>
+						</li-->
+						<li>
+							<a href="<?=$this->Html->url(array('controller' => 'AdminDomainLists', 'action' => 'index'))?>">
+								<i class="fa fa-list"></i> <?=__('Domain lists')?>
 							</a>
 						</li>
 						<li>

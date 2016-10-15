@@ -60,23 +60,9 @@ class AdminController extends AppController {
 				list($plugin, $model) = explode('.',$model);
 			}
 			$this->{$model}->delete($id);
+			$this->Flash->success(__('Record has been deleted'));
 		}
 		$this->redirect(array('action' => 'index'));
-		/*
-		$model = $this->request->query('model');
-		if ($model) {
-			$this->loadModel($model);
-			if (strpos($model, '.') !== false) {
-				list($plugin, $model) = explode('.',$model);
-			}
-			$this->{$model}->delete($id);
-		}
-		if ($backURL = $this->request->query('backURL')) {
-			$this->redirect($backURL);
-			return;
-		}
-		$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
-		*/
 	}
 
 }
