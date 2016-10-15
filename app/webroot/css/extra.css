@@ -7,4 +7,8 @@
     margin-top: 0px;
 }
 
+.portlet.portlet-mini.light .portlet-body {padding-top: 0;}
+.portlet.portlet-mini .table-toolbar { margin: 0; }
+.portlet.portlet-mini .tabbable-bordered { margin: 0;}
+
 .more-items button { display: block; }

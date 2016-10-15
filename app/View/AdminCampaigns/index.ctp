@@ -30,9 +30,6 @@
 	}
 	.filter-list-header {font-weight: bold; margin: 10px 0 5px 0;}
 	.filter-list-item {margin: 3px 0;}
-	.portlet.portlet-mini.light .portlet-body {padding-top: 0;}
-	.portlet.portlet-mini .table-toolbar { margin: 0; }
-	.portlet.portlet-mini .tabbable-bordered { margin: 0;}
 </style>
 <?
 	$this->Html->script(array(

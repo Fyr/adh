@@ -8,7 +8,7 @@ class AdminDomainListsController extends AdminController {
     public $uses = array('DomainList', 'ListType', 'DomainListDetails');
 
     public $paginate = array(
-        // 'conditions' => array('campaign_id' => 0),
+        'conditions' => array(),
         'fields' => array('list_type', 'title', 'sorting'),
         'order' => array('sorting' => 'asc'),
         'limit' => 20
@@ -21,7 +21,21 @@ class AdminDomainListsController extends AdminController {
         $this->set(compact('aTypeOptions'));
     }
 
+    private function _processFilter() {
+        if ($list_type = intval($this->request->query('list_type'))) {
+            $this->paginate['conditions']['list_type'] = $list_type;
+        }
+        if ($domain = $this->request->query('domain')) {
+            $conditions = compact('domain');
+            $aRowset = $this->DomainListDetails->find('all', compact('conditions'));
+            if ($aRowset) {
+                $this->paginate['conditions']['id'] = Hash::extract($aRowset, '{n}.DomainListDetails.list_id');
+            }
+        }
+    }
+
     public function index() {
+        $this->_processFilter();
         $aRowset = $this->PCTableGrid->paginate('DomainList');
         $list_ids = Hash::extract($aRowset, '{n}.DomainList.id');
 

@@ -31,7 +31,7 @@
 ?>
 <div class="row">
 	<div class="col-md-12">
-		<div class="portlet light bordered">
+		<div class="portlet light bordered portlet-mini">
 			<?=$this->element('AdminUI/form_title', array('title' => __('Domain lists')))?>
 			<div class="portlet-body dataTables_wrapper">
 				<div class="table-toolbar">
@@ -43,7 +43,31 @@
 								</a>
 							</div>
 						</div>
-						<div class="col-md-6">
+						<div class="col-md-6 text-right">
+							<div class="btn-group">
+<?
+	$namedParams = $this->request->named;
+	if (isset($namedParams['page'])) {
+		unset($namedParams['page']);
+	}
+	echo $this->PHForm->create('Filter', array(
+		'class' => 'form-inline',
+		'id' => 'filterForm',
+		'type' => 'get',
+		'url' => am(array('controller' => 'AdminDomainLists', 'action' => 'index'), $namedParams)
+	));
+	echo 'List type '.$this->PHForm->input('list_type', array(
+		'options' => am(array('- any type -'), $aTypeOptions),
+		'value' => $this->request->query('list_type'),
+		'autocomplete' => 'off'
+	));
+	echo 'Domain '.$this->PHForm->input('domain', array('value' => $this->request->query('domain')));
+?>
+								<button type="submit" class="btn btn-success"> <i class="fa fa-search"></i> Find </button>
+<?
+	echo $this->PHForm->end();
+?>
+							</div>
 						</div>
 					</div>
 				</div>
