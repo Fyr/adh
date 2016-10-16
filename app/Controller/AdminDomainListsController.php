@@ -88,6 +88,11 @@ class AdminDomainListsController extends AdminController {
                 $this->request->data('ListType.sorting', '0');
             }
         }
+
+        $aCampaigns = $this->Campaign->getList();
+        $aCampaigns = Hash::combine($aCampaigns, '{n}.Campaign.id', '{n}.Campaign');
+        $this->set(compact('aCampaigns'));
+        // $this->set('aCampaignOptions', $this->Campaign->getOptions());
     }
 
     private function _getDomainList($domains) {
