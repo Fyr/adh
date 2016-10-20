@@ -6,12 +6,17 @@ var TableGrid = function() {
 	self.data = [];
 	self.sortKey = null;
 	self.sortDesc = false;
+	self.checkboxes = false;
+	self.checkboxes = false;
+	self.primaryKey = 'id';
+	self.rowActions = false;
 
-	this.init = function(container, columns, data) {
+	this.init = function(container, columns, data, settings) {
 		self.$ = $(container);
 		self.columns = columns;
 		self.data = data;
-		this.initColumns();
+		self.initColumns();
+		self.initSettings(settings);
 	};
 
 	this.initColumns = function() {
@@ -22,6 +27,17 @@ var TableGrid = function() {
 		});
 	};
 
+	this.initSettings = function(settings) {
+		for(var i in settings) {
+			self[i] = settings[i];
+		}
+		/*
+		self.checkboxes = isset(settings.checkboxes);
+		self.primaryKey = isset(settings.primaryKey) ? settings.primaryKey : 'id';
+		self.rowActions = isset(settings.rowActions) ? settings.rowActions : false;
+		*/
+	};
+
 	this.setData = function(data) {
 		self.data = data;
 	};
@@ -30,7 +46,7 @@ var TableGrid = function() {
 		self.sortKey = colKey;
 		self.sortDesc = lDesc;
 		JSON.sortBy(self.data, colKey, lDesc);
-		this.render();
+		self.render();
 	};
 
 	this.render = function() {
@@ -38,11 +54,26 @@ var TableGrid = function() {
 			Format.tag('thead', null, this.renderHeader()) + Format.tag('tbody', null, this.renderBody())
 		);
 		self.$.html(html);
-		this.initHandlers();
+		self.initHandlers();
+	};
+
+	this.renderCheckbox = function(attrs) {
+		attrs.type = 'checkbox';
+		attrs.autocomplete = 'off';
+		return Format.tag('div', {class: 'checker'},
+			Format.tag('span', null,
+				Format.tag('input', attrs)
+			)
+		)
 	};
 
 	this.renderHeader = function() {
 		var html = '';
+		if (self.checkboxes) {
+			html+= Format.tag('th', {class: 'checkboxes'},
+				self.renderCheckbox({id: 'check-all'})
+			);
+		}
 		for(var i = 0; i < self.columns.length; i++) {
 			var col = self.columns[i];
 			var attrs = {id: col.key, class: 'grid-header'};
@@ -54,6 +85,9 @@ var TableGrid = function() {
 			}
 			html+= Format.tag('th', attrs, col.label);
 		}
+		if (self.rowActions) {
+			html+= Format.tag('th', null, 'Actions');
+		}
 		return html;
 	};
 
@@ -61,6 +95,12 @@ var TableGrid = function() {
 		var html = '';
 		JSON.iterate(self.data, function(row){
 			var tr = '';
+			var id = JSON.get(row, self.primaryKey);
+			if (self.checkboxes) {
+				tr+= Format.tag('td', {class: 'checkboxes'},
+					self.renderCheckbox({name: 'data[checked][]', value: id})
+				);
+			}
 			for(var j = 0; j < self.columns.length; j++) {
 				var col = self.columns[j];
 				var val = JSON.get(row, col.key);
@@ -87,13 +127,29 @@ var TableGrid = function() {
 
 				tr+= val;
 			}
+			if (self.rowActions) {
+				tr+= Format.tag('td', {class: 'actions'}, self.rowActions(id, row));
+			}
 			html+= Format.tag('tr', null, tr);
 		});
 		return html;
 	};
 
 	this.initHandlers = function(){
-		$('thead th.grid-sortable').click(function(){
+		if (self.checkboxes) {
+			$('thead th.checkboxes span', self.$).click(function(){
+				$(this).toggleClass('checked');
+				// var checked = $(this).hasClass('checked');
+				$('tbody td.checkboxes span', self.$).removeClass('checked');
+				if ($(this).hasClass('checked')) {
+					$('tbody td.checkboxes span', self.$).addClass('checked');
+				}
+			});
+			$('tbody td.checkboxes span', self.$).click(function(){
+				$(this).toggleClass('checked');
+			});
+		}
+		$('thead th.grid-sortable', self.$).click(function(){
 			var lDesc = $(this).hasClass('sorting_asc');
 			self.sortBy($(this).prop('id'), lDesc);
 		});

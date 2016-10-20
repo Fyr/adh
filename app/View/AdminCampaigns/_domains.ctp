@@ -57,7 +57,25 @@ $(function(){
     ];
 
     domainsGrid = new DomainListGrid();
-    domainsGrid.init('#domains-report', columns);
+    domainsGrid.init('#domains-report', columns, null, {
+        checkboxes: true,
+        primaryKey: 'domain_id',
+        rowActions: function(id, row) {
+            var html;
+            html = Format.tag('a', {
+                class: 'btn btn-icon-only action-icon green',
+                href: 'javascript:;',
+                title: 'Remove from local black list'
+            }, '<i class="fa fa-play"></i>');
+
+            html+= Format.tag('a', {
+                class: 'btn btn-icon-only action-icon red',
+                href: 'javascript:;',
+                title: 'Add to local black list'
+            }, '<i class="fa fa-remove"></i>');
+            return html;
+        }
+    });
 });
 </script>
 

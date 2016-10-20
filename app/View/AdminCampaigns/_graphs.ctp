@@ -31,6 +31,7 @@ function renderReports(response) {
     aData = [];
     for(var domain_id in response.data.domainStats) {
         row = response.data.domainStats[domain_id];
+        row.domain_id = domain_id;
         row.domain = response.data.domains[domain_id];
         row.epv = parseFloat(row.epv);
         aData.push(row);
@@ -80,7 +81,6 @@ function getChartsData(stats, d_) {
 
         data.epv.push(parseFloat(stats[date][d_ + 'epv']));
     }
-    console.log(data);
     return data;
 }
 

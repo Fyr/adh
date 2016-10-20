@@ -30,6 +30,7 @@
 	}
 	.filter-list-header {font-weight: bold; margin: 10px 0 5px 0;}
 	.filter-list-item {margin: 3px 0;}
+	.dataTable .actions {text-align: center; }
 </style>
 <?
 	$this->Html->script(array(

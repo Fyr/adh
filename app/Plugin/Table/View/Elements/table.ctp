@@ -63,7 +63,7 @@
 			}
 		}
 		if ($options['row_actions']) {
-			echo '<td nowrap="nowrap">'.$this->element($options['row_actions'], compact('id', 'row')).'</td>';
+			echo '<td class="actions">'.$this->element($options['row_actions'], compact('id', 'row')).'</td>';
 		}
 ?>
 		</tr>
